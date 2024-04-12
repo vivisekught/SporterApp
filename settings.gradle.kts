@@ -1,5 +1,8 @@
 @file:Suppress("UnstableApiUsage")
 
+include(":feature:login_screen")
+
+
 pluginManagement {
     repositories {
         google {

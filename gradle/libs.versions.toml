@@ -1,5 +1,6 @@
 [versions]
-agp = "8.3.2"
+agp = "8.3.0"
+hiltAndroid = "2.51"
 kotlin = "1.9.23"
 coreKtx = "1.12.0"
 junit = "4.13.2"
@@ -10,9 +11,12 @@ material = "1.11.0"
 lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.8.2"
 composeBom = "2024.04.00"
+hilt = "2.51"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -29,8 +33,19 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
+[bundles]
+compose = [
+    "androidx-ui",
+    "androidx-ui-graphics",
+    "androidx-ui-tooling",
+    "androidx-ui-tooling-preview",
+    "androidx-material3"
+]
+
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
+googleHiltAndroid = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 

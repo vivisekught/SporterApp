@@ -1,4 +1,4 @@
-package com.graduate.work.utils.helper
+package com.graduate.work.feature.login_screen
 
 import org.junit.Test
 

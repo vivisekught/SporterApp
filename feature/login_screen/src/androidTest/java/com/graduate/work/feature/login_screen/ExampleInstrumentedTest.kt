@@ -1,4 +1,4 @@
-package com.graduate.work.utils.helper
+package com.graduate.work.feature.login_screen
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.graduate.work.utils.helper.test", appContext.packageName)
+        assertEquals("com.graduate.work.feature.login_screen.test", appContext.packageName)
     }
 }

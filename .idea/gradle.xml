@@ -11,6 +11,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/data" />
             <option value="$PROJECT_DIR$/feature" />
+            <option value="$PROJECT_DIR$/feature/login_screen" />
             <option value="$PROJECT_DIR$/utils" />
             <option value="$PROJECT_DIR$/utils/helper" />
             <option value="$PROJECT_DIR$/utils/ui" />
