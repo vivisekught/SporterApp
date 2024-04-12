@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 pluginManagement {
     repositories {
         google {
@@ -21,4 +23,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "SporterApp"
 include(":app")
- 
+include(":utils")
+include(":utils:ui")
+include(":data")
+include(":feature")
+include(":utils:helper")
