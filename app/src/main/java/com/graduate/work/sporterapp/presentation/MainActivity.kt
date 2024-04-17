@@ -1,46 +1,38 @@
 package com.graduate.work.sporterapp.presentation
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.graduate.work.sporterapp.utils.ui.theme.AppTheme
+import dagger.hilt.android.AndroidEntryPoint
 
-import com.graduate.work.utils.ui.ui.theme.AppTheme
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val viewModel by viewModels<MainViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val authState = viewModel.currentAuthState.collectAsState().value
             AppTheme {
+                LaunchedEffect(authState) {
+                    Log.d("AAAAAA", "authState: $authState")
+                }
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AppTheme {
-        Greeting("Android")
     }
 }

@@ -1,6 +1,9 @@
 [versions]
 agp = "8.3.0"
+constraintlayoutCompose = "1.0.1"
+firebaseBom = "32.8.1"
 hiltAndroid = "2.51"
+hiltNavigationCompose = "1.2.0"
 kotlin = "1.9.23"
 coreKtx = "1.12.0"
 junit = "4.13.2"
@@ -12,9 +15,20 @@ lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.8.2"
 composeBom = "2024.04.00"
 hilt = "2.51"
+googleServices = "4.4.1"
+navigationCompose = "2.7.7"
+activity = "1.8.2"
+constraintlayout = "2.1.4"
 
 [libraries]
+androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics-ktx" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics-ktx" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -32,14 +46,18 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 
 [bundles]
 compose = [
     "androidx-ui",
+    "androidx-activity-compose",
     "androidx-ui-graphics",
     "androidx-ui-tooling",
     "androidx-ui-tooling-preview",
-    "androidx-material3"
+    "androidx-material3",
+    "androidx-constraintlayout-compose"
 ]
 
 
@@ -48,4 +66,5 @@ androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 googleHiltAndroid = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+gmsGoogleServices = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 

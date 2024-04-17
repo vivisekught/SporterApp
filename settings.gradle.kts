@@ -1,8 +1,5 @@
 @file:Suppress("UnstableApiUsage")
 
-include(":feature:login_screen")
-
-
 pluginManagement {
     repositories {
         google {
@@ -26,8 +23,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "SporterApp"
 include(":app")
-include(":utils")
-include(":utils:ui")
-include(":data")
-include(":feature")
-include(":utils:helper")
