@@ -1,8 +1,8 @@
-package com.graduate.work.data.firebase.di
+package com.graduate.work.sporterapp.di.firebase.auth
 
 import com.google.firebase.auth.FirebaseAuth
-import com.graduate.work.sporterapp.domain.firebase.auth.FirebaseAuthRepository
 import com.graduate.work.sporterapp.data.firebase.auth.FirebaseAuthRepositoryImpl
+import com.graduate.work.sporterapp.domain.firebase.auth.repositories.FirebaseAuthRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

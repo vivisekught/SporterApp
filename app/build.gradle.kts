@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -6,6 +8,13 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
 }
+
+val gradleProperties = Properties()
+val gradlePropertiesFile: File = rootProject.file("gradle.properties")
+if (gradlePropertiesFile.exists()) {
+    gradleProperties.load(gradlePropertiesFile.inputStream())
+}
+
 
 android {
     namespace = "com.graduate.work.sporterapp"
@@ -19,6 +28,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "WEB_API_KEY",
+            "\"${gradleProperties.getProperty("WEB_API_KEY")}\""
+        )
+
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -46,6 +61,7 @@ android {
         }
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
@@ -83,4 +99,10 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.auth)
+    implementation(libs.play.services.auth)
+
+    implementation(libs.androidx.credentials.v122)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+
 }
