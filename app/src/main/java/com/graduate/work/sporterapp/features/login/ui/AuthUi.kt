@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.features.login.presentation.composables
+package com.graduate.work.sporterapp.features.login.ui
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -92,11 +92,13 @@ fun PasswordTextField(
 fun LoginIcon(
     modifier: Modifier = Modifier,
     painter: Painter,
+    enabled: Boolean,
     description: String,
     onClick: () -> Unit,
 ) {
     IconButton(
         modifier = modifier,
+        enabled = enabled,
         onClick = { onClick() }
     ) {
         Icon(

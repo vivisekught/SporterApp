@@ -13,9 +13,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.graduate.work.sporterapp.features.login.presentation.model.AuthViewModel
+import com.graduate.work.sporterapp.features.login.sign_in.SignInCompleteScreen
 import com.graduate.work.sporterapp.navigation.AppNavigation
-import com.graduate.work.sporterapp.utils.core.Core.sharedViewModel
 import com.graduate.work.sporterapp.utils.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -42,19 +41,15 @@ class MainActivity : ComponentActivity() {
                             route = AppNavigation.Auth.AUTH_FEATURE_SCREEN_ROUTE,
                         ) {
                             composable(AppNavigation.Auth.SignInScreen.route) {
-                                val authViewModel = it.sharedViewModel<AuthViewModel>(navController)
-
+                                SignInCompleteScreen(navController = navController)
                             }
                             composable(AppNavigation.Auth.SignUpScreen.route) {
-                                val authViewModel = it.sharedViewModel<AuthViewModel>(navController)
 
                             }
                             composable(AppNavigation.Auth.ForgotPasswordScreen.route) {
-                                val authViewModel = it.sharedViewModel<AuthViewModel>(navController)
 
                             }
                             composable(AppNavigation.Auth.EmailVerificationScreen.route) {
-                                val authViewModel = it.sharedViewModel<AuthViewModel>(navController)
 
                             }
                         }

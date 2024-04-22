@@ -1,17 +1,15 @@
-package com.graduate.work.sporterapp.features.login.presentation.screens
+package com.graduate.work.sporterapp.features.login.sign_in.screen
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -20,25 +18,13 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.graduate.work.sporterapp.R
-import com.graduate.work.sporterapp.features.login.presentation.composables.EmailTextField
-import com.graduate.work.sporterapp.features.login.presentation.composables.LoginIcon
-import com.graduate.work.sporterapp.features.login.presentation.composables.PasswordTextField
-
-sealed class SignInScreenEvent {
-    data object ForgetPassword : SignInScreenEvent()
-    data class SignIn(val email: String, val password: String) : SignInScreenEvent()
-    data object GoogleSignIn : SignInScreenEvent()
-    data object SignUp : SignInScreenEvent()
-}
+import com.graduate.work.sporterapp.features.login.sign_in.vm.SignInScreenState
+import com.graduate.work.sporterapp.features.login.ui.EmailTextField
+import com.graduate.work.sporterapp.features.login.ui.LoginIcon
+import com.graduate.work.sporterapp.features.login.ui.PasswordTextField
 
 @Composable
-fun SignInScreen(isError: Boolean = false, event: (SignInScreenEvent) -> Unit) {
-    var emailField by rememberSaveable {
-        mutableStateOf("")
-    }
-    var passwordField by rememberSaveable {
-        mutableStateOf("")
-    }
+fun SignInScreen(uiState: SignInScreenState, event: (SignInScreenEvent) -> Unit) {
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (
             welcomeTextRef,
@@ -51,6 +37,30 @@ fun SignInScreen(isError: Boolean = false, event: (SignInScreenEvent) -> Unit) {
             otherSignInVariantsRef,
             orLoginWithTextRef,
         ) = createRefs()
+
+        if (uiState.isLoading) {
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .constrainAs(createRef()) {
+                        centerHorizontallyTo(parent)
+                        top.linkTo(parent.top)
+                    }
+            )
+        }
+
+        LaunchedEffect(uiState.shouldNavigateToOnBoarding) {
+            if (uiState.shouldNavigateToOnBoarding) {
+                event(SignInScreenEvent.NavigateToOnBoarding)
+            }
+        }
+
+        LaunchedEffect(uiState.shouldNavigateToHomeScreen) {
+            if (uiState.shouldNavigateToHomeScreen) {
+                event(SignInScreenEvent.NavigateToHomeScreen)
+            }
+        }
+
         Text(
             text = stringResource(R.string.welcome_back),
             modifier = Modifier
@@ -70,9 +80,9 @@ fun SignInScreen(isError: Boolean = false, event: (SignInScreenEvent) -> Unit) {
             style = MaterialTheme.typography.bodyMedium
         )
         EmailTextField(
-            emailField = emailField,
-            onEmailFieldChange = { emailField = it },
-            isError = isError,
+            emailField = uiState.email,
+            onEmailFieldChange = { event(SignInScreenEvent.OnEmailChanged(it)) },
+            isError = uiState.isEmailAndPasswordError,
             modifier = Modifier.constrainAs(emailFieldRef) {
                 top.linkTo(signInTextRef.bottom, 64.dp)
                 centerHorizontallyTo(parent)
@@ -80,11 +90,11 @@ fun SignInScreen(isError: Boolean = false, event: (SignInScreenEvent) -> Unit) {
             },
         )
         PasswordTextField(
-            passwordField = passwordField,
+            passwordField = uiState.password,
             onPasswordFieldChange = {
-                passwordField = it
+                event(SignInScreenEvent.OnPasswordChanged(it))
             },
-            isError = isError,
+            isError = uiState.isEmailAndPasswordError,
             modifier = Modifier.constrainAs(passwordFieldRef) {
                 top.linkTo(emailFieldRef.bottom, margin = 32.dp)
                 centerHorizontallyTo(parent)
@@ -92,7 +102,7 @@ fun SignInScreen(isError: Boolean = false, event: (SignInScreenEvent) -> Unit) {
             },
         )
         TextButton(
-            onClick = { event(SignInScreenEvent.ForgetPassword) },
+            onClick = { event(SignInScreenEvent.NavigateToForgetPassword) },
             modifier = Modifier.constrainAs(forgetPasswordRef) {
                 top.linkTo(passwordFieldRef.bottom, margin = 8.dp)
                 end.linkTo(passwordFieldRef.end)
@@ -100,7 +110,12 @@ fun SignInScreen(isError: Boolean = false, event: (SignInScreenEvent) -> Unit) {
             Text(text = stringResource(R.string.forget_password))
         }
         Button(
-            onClick = { event(SignInScreenEvent.SignIn(emailField, passwordField)) },
+            onClick = {
+                event(
+                    SignInScreenEvent.SignInWithEmailAndPassword
+                )
+            },
+            enabled = !uiState.isLoading,
             modifier = Modifier.constrainAs(nextButtonRef) {
                 top.linkTo(forgetPasswordRef.bottom, margin = 32.dp)
                 centerHorizontallyTo(parent)
@@ -127,9 +142,10 @@ fun SignInScreen(isError: Boolean = false, event: (SignInScreenEvent) -> Unit) {
         ) {
             LoginIcon(
                 painter = painterResource(id = R.drawable.ic_google),
+                enabled = !uiState.isLoading,
                 description = stringResource(R.string.sign_in_with_google)
             ) {
-                event(SignInScreenEvent.GoogleSignIn)
+                event(SignInScreenEvent.SignInWithGoogle)
             }
         }
 
@@ -138,7 +154,7 @@ fun SignInScreen(isError: Boolean = false, event: (SignInScreenEvent) -> Unit) {
             centerHorizontallyTo(parent)
         }, verticalAlignment = Alignment.CenterVertically) {
             Text(text = stringResource(R.string.don_t_have_an_account))
-            TextButton(onClick = { event(SignInScreenEvent.SignUp) }) {
+            TextButton(onClick = { event(SignInScreenEvent.NavigateToSignUp) }) {
                 Text(text = stringResource(R.string.sign_up))
             }
         }
