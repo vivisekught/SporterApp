@@ -3,7 +3,7 @@ package com.graduate.work.sporterapp.navigation
 enum class AuthScreens(val screenName: String) {
     SIGN_UP("signUp"),
     SIGN_IN("signIn"),
-    FORGOT_PASSWORD("forgotPassword"),
+    FORGET_PASSWORD("forgetPassword"),
     EMAIL_VERIFICATION("emailVerification")
 }
 
@@ -14,7 +14,7 @@ sealed class AppNavigation {
 
         data object SignUpScreen : Auth(AuthScreens.SIGN_UP.screenName)
 
-        data object ForgotPasswordScreen : Auth(AuthScreens.FORGOT_PASSWORD.screenName)
+        data object ForgetPasswordScreen : Auth(AuthScreens.FORGET_PASSWORD.screenName)
 
         data object EmailVerificationScreen : Auth(AuthScreens.EMAIL_VERIFICATION.screenName)
         companion object {

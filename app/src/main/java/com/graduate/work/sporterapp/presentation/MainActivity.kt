@@ -13,7 +13,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import com.graduate.work.sporterapp.features.login.sign_in.SignInCompleteScreen
+import com.graduate.work.sporterapp.features.login.screens.sign_in.SignInCompleteScreen
+import com.graduate.work.sporterapp.features.login.screens.sign_up.SignUpCompleteScreen
 import com.graduate.work.sporterapp.navigation.AppNavigation
 import com.graduate.work.sporterapp.utils.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,9 +45,9 @@ class MainActivity : ComponentActivity() {
                                 SignInCompleteScreen(navController = navController)
                             }
                             composable(AppNavigation.Auth.SignUpScreen.route) {
-
+                                SignUpCompleteScreen(navController = navController)
                             }
-                            composable(AppNavigation.Auth.ForgotPasswordScreen.route) {
+                            composable(AppNavigation.Auth.ForgetPasswordScreen.route) {
 
                             }
                             composable(AppNavigation.Auth.EmailVerificationScreen.route) {

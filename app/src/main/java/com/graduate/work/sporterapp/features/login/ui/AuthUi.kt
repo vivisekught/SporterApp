@@ -3,6 +3,7 @@ package com.graduate.work.sporterapp.features.login.ui
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
@@ -22,6 +23,33 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.graduate.work.sporterapp.R
+
+@Composable
+fun UserNameTextField(
+    modifier: Modifier = Modifier,
+    isError: Boolean,
+    usernameField: String,
+    onUserNameFieldChange: (String) -> Unit,
+) {
+    TextField(
+        value = usernameField,
+        onValueChange = {
+            onUserNameFieldChange(it)
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+        modifier = modifier,
+        supportingText = {
+            Text(text = stringResource(R.string.username))
+        },
+        trailingIcon = {
+            Icon(Icons.Default.Person, contentDescription = stringResource(id = R.string.username))
+        },
+        isError = isError,
+        singleLine = true,
+        maxLines = 1,
+    )
+}
+
 
 @Composable
 fun EmailTextField(

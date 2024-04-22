@@ -1,30 +1,41 @@
-package com.graduate.work.sporterapp.features.login.sign_in.screen
+package com.graduate.work.sporterapp.features.login.screens.sign_in.screen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.graduate.work.sporterapp.R
-import com.graduate.work.sporterapp.features.login.sign_in.vm.SignInScreenState
+import com.graduate.work.sporterapp.features.login.screens.sign_in.vm.SignInScreenState
 import com.graduate.work.sporterapp.features.login.ui.EmailTextField
 import com.graduate.work.sporterapp.features.login.ui.LoginIcon
 import com.graduate.work.sporterapp.features.login.ui.PasswordTextField
 
 @Composable
 fun SignInScreen(uiState: SignInScreenState, event: (SignInScreenEvent) -> Unit) {
+    val snackbarHostState = remember { SnackbarHostState() }
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (
             welcomeTextRef,
@@ -37,26 +48,35 @@ fun SignInScreen(uiState: SignInScreenState, event: (SignInScreenEvent) -> Unit)
             otherSignInVariantsRef,
             orLoginWithTextRef,
         ) = createRefs()
+        AnimatedVisibility(
+            visible = uiState.isLoading,
+            modifier = Modifier
+                .padding(8.dp)
+                .constrainAs(createRef()) {
+                    centerHorizontallyTo(parent)
+                    top.linkTo(parent.top)
+                    width = Dimension.fillToConstraints
+                },
+            enter = slideInVertically(),
+            exit = slideOutVertically()
+        ) {
+            LinearProgressIndicator()
+        }
 
-        if (uiState.isLoading) {
-            LinearProgressIndicator(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .constrainAs(createRef()) {
-                        centerHorizontallyTo(parent)
-                        top.linkTo(parent.top)
-                    }
-            )
+        LaunchedEffect(uiState.isGoogleAuthError, uiState.isEmailAndPasswordError) {
+            if (uiState.isGoogleAuthError || uiState.isEmailAndPasswordError) {
+                snackbarHostState.showSnackbar(
+                    message = uiState.errorMessage,
+                    duration = SnackbarDuration.Short
+                )
+                event(SignInScreenEvent.ResetGoogleAuthErrorState)
+            }
         }
 
         LaunchedEffect(uiState.shouldNavigateToOnBoarding) {
             if (uiState.shouldNavigateToOnBoarding) {
                 event(SignInScreenEvent.NavigateToOnBoarding)
-            }
-        }
-
-        LaunchedEffect(uiState.shouldNavigateToHomeScreen) {
-            if (uiState.shouldNavigateToHomeScreen) {
+            } else if (uiState.shouldNavigateToHomeScreen) {
                 event(SignInScreenEvent.NavigateToHomeScreen)
             }
         }
@@ -127,25 +147,33 @@ fun SignInScreen(uiState: SignInScreenState, event: (SignInScreenEvent) -> Unit)
                 modifier = Modifier.padding(4.dp)
             )
         }
+        HorizontalDivider(modifier = Modifier.constrainAs(createRef()) {
+            bottom.linkTo(orLoginWithTextRef.top, margin = 12.dp)
+            start.linkTo(parent.start, 32.dp)
+            end.linkTo(parent.end, 32.dp)
+            width = Dimension.fillToConstraints
+        }, thickness = 2.dp)
         Text(
             text = stringResource(R.string.or_login_with),
             modifier = Modifier.constrainAs(orLoginWithTextRef) {
-                top.linkTo(nextButtonRef.bottom, margin = 32.dp)
+                bottom.linkTo(otherSignInVariantsRef.top, margin = 32.dp)
                 centerHorizontallyTo(parent)
             })
         Row(
             modifier = Modifier.constrainAs(otherSignInVariantsRef) {
-                top.linkTo(orLoginWithTextRef.bottom, margin = 32.dp)
+                bottom.linkTo(signUpTextRef.top, margin = 16.dp)
                 centerHorizontallyTo(parent)
             },
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val localContext = LocalContext.current
+            val coroutineScope = rememberCoroutineScope()
             LoginIcon(
                 painter = painterResource(id = R.drawable.ic_google),
                 enabled = !uiState.isLoading,
                 description = stringResource(R.string.sign_in_with_google)
             ) {
-                event(SignInScreenEvent.SignInWithGoogle)
+                event(SignInScreenEvent.AuthWithGoogle(coroutineScope, localContext))
             }
         }
 
@@ -158,5 +186,9 @@ fun SignInScreen(uiState: SignInScreenState, event: (SignInScreenEvent) -> Unit)
                 Text(text = stringResource(R.string.sign_up))
             }
         }
+        SnackbarHost(modifier = Modifier.constrainAs(createRef()) {
+            bottom.linkTo(parent.bottom, margin = 16.dp)
+            centerHorizontallyTo(parent)
+        }, hostState = snackbarHostState)
     }
 }

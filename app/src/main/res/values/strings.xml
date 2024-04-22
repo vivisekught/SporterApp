@@ -5,7 +5,7 @@
     <string name="sign_in_to_your_account">sign in to your account</string>
     <string name="forget_password">Forget password?</string>
     <string name="next">Next</string>
-    <string name="or_login_with">Or Login with</string>
+    <string name="or_login_with">or login with</string>
     <string name="sign_in_with_google">Sign in with google</string>
     <string name="don_t_have_an_account">Don\'t have an account?</string>
     <string name="sign_up">Sign up</string>
@@ -13,4 +13,10 @@
     <string name="password">Password</string>
     <string name="hide_password">Hide password</string>
     <string name="show_password">Show password</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="sign_in">Sign in</string>
+    <string name="or_sign_up_with">or sign up with</string>
+    <string name="username">Username</string>
+    <string name="get_started">Get started</string>
+    <string name="by_creating_a_free_account">by creating a free account</string>
 </resources>
