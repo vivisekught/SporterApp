@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -33,21 +32,8 @@ import com.graduate.work.sporterapp.features.login.screens.sign_up.vm.SignUpScre
 import com.graduate.work.sporterapp.features.login.ui.EmailTextField
 import com.graduate.work.sporterapp.features.login.ui.LoginIcon
 import com.graduate.work.sporterapp.features.login.ui.PasswordTextField
+import com.graduate.work.sporterapp.features.login.ui.PolicyAndTermsText
 import com.graduate.work.sporterapp.features.login.ui.UserNameTextField
-import com.graduate.work.sporterapp.utils.ui.theme.AppTheme
-
-@Preview(showSystemUi = true)
-@Composable
-fun CustomPreview() {
-    AppTheme {
-        SignUpScreen(
-            uiState = SignUpScreenState(
-                isGoogleAuthError = true,
-            ),
-            event = {}
-        )
-    }
-}
 
 @Composable
 fun SignUpScreen(uiState: SignUpScreenState, event: (SignUpScreenEvent) -> Unit) {
@@ -59,6 +45,7 @@ fun SignUpScreen(uiState: SignUpScreenState, event: (SignUpScreenEvent) -> Unit)
             userNameFieldRef,
             emailFieldRef,
             passwordFieldRef,
+            policyAndTermsTextRef,
             nextButtonRef,
             otherSignInVariantsRef,
             orSignUpWithTextRef,
@@ -79,7 +66,6 @@ fun SignUpScreen(uiState: SignUpScreenState, event: (SignUpScreenEvent) -> Unit)
         ) {
             LinearProgressIndicator()
         }
-
         LaunchedEffect(uiState.isGoogleAuthError, uiState.isEmailAndPasswordError) {
             if (uiState.isGoogleAuthError || uiState.isEmailAndPasswordError) {
                 snackbarHostState.showSnackbar(
@@ -104,7 +90,7 @@ fun SignUpScreen(uiState: SignUpScreenState, event: (SignUpScreenEvent) -> Unit)
             text = stringResource(R.string.get_started),
             modifier = Modifier
                 .constrainAs(getStartedTextRef) {
-                    top.linkTo(parent.top, 64.dp)
+                    top.linkTo(parent.top, 32.dp)
                     centerHorizontallyTo(parent)
                 },
             style = MaterialTheme.typography.headlineSmall
@@ -150,15 +136,31 @@ fun SignUpScreen(uiState: SignUpScreenState, event: (SignUpScreenEvent) -> Unit)
                 width = Dimension.percent(0.85f)
             },
         )
+        PolicyAndTermsText(
+            modifier = Modifier.constrainAs(policyAndTermsTextRef) {
+                top.linkTo(passwordFieldRef.bottom, margin = 8.dp)
+                centerHorizontallyTo(parent)
+                width = Dimension.percent(0.85f)
+            },
+            color = if (uiState.isPolicyAcceptedError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground,
+            checked = uiState.isPolicyAccepted,
+            onCheckedChange = {
+                event(SignUpScreenEvent.OnPolicyAndTermsChanged(it))
+            },
+            onPolicyClick = {
+                event(SignUpScreenEvent.OpenPolicy)
+            },
+            onTermsClick = {
+                event(SignUpScreenEvent.OpenTerms)
+            }
+        )
         Button(
             onClick = {
-                event(
-                    SignUpScreenEvent.SignUpWithEmailAndPassword
-                )
+                event(SignUpScreenEvent.SignUpWithEmailAndPassword)
             },
             enabled = !uiState.isLoading,
             modifier = Modifier.constrainAs(nextButtonRef) {
-                top.linkTo(passwordFieldRef.bottom, margin = 32.dp)
+                top.linkTo(policyAndTermsTextRef.bottom, margin = 32.dp)
                 centerHorizontallyTo(parent)
                 width = Dimension.percent(0.9f)
             }) {
@@ -169,7 +171,7 @@ fun SignUpScreen(uiState: SignUpScreenState, event: (SignUpScreenEvent) -> Unit)
             )
         }
         HorizontalDivider(modifier = Modifier.constrainAs(createRef()) {
-            bottom.linkTo(orSignUpWithTextRef.top, margin = 8.dp)
+            bottom.linkTo(orSignUpWithTextRef.top)
             start.linkTo(parent.start, 32.dp)
             end.linkTo(parent.end, 32.dp)
             width = Dimension.fillToConstraints
@@ -177,7 +179,8 @@ fun SignUpScreen(uiState: SignUpScreenState, event: (SignUpScreenEvent) -> Unit)
         Text(
             text = stringResource(R.string.or_sign_up_with),
             modifier = Modifier.constrainAs(orSignUpWithTextRef) {
-                bottom.linkTo(otherSignInVariantsRef.top, margin = 32.dp)
+                top.linkTo(nextButtonRef.bottom)
+                bottom.linkTo(otherSignInVariantsRef.top)
                 centerHorizontallyTo(parent)
             })
         Row(

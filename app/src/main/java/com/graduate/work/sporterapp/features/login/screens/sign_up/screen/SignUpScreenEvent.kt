@@ -14,4 +14,7 @@ sealed class SignUpScreenEvent {
     data class OnEmailChanged(val email: String) : SignUpScreenEvent()
     data class OnPasswordChanged(val password: String) : SignUpScreenEvent()
     data object ResetGoogleAuthErrorState : SignUpScreenEvent()
+    data object OpenPolicy : SignUpScreenEvent()
+    data object OpenTerms : SignUpScreenEvent()
+    data class OnPolicyAndTermsChanged(val isAgree: Boolean) : SignUpScreenEvent()
 }

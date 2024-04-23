@@ -1,12 +1,16 @@
 package com.graduate.work.sporterapp.utils.core
 
 import android.content.Context
-import android.util.Log
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -27,6 +31,12 @@ object Core {
         return viewModel(parentEntry)
     }
 
+    fun openLinkInWebBrowser(context: Context, link: String) {
+        val uri = Uri.parse(link)
+        val intent = Intent(Intent.ACTION_VIEW, uri)
+        context.startActivity(intent)
+    }
+
     suspend fun Context.getGoogleCredential(): Response<GetCredentialResponse> {
         val request = getGoogleRequest()
         val credentialManager = CredentialManager.create(this)
@@ -36,8 +46,13 @@ object Core {
                 request = request
             )
             Response.Success(result)
+        } catch (e: GetCredentialCancellationException) {
+            Response.Failure("User cancelled the request")
+        } catch (e: NoCredentialException) {
+            Response.Failure("Credentials not found")
+        } catch (e: GetCredentialException) {
+            Response.Failure("Error fetching the credentials")
         } catch (e: Exception) {
-            Log.d("AAAAAA", "getGoogleCredential: ${e.message}")
             Response.Failure("Something went wrong, please try later")
         }
     }

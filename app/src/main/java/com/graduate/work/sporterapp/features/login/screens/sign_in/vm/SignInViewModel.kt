@@ -53,7 +53,11 @@ class SignInViewModel @Inject constructor(
 
     fun signInWithEmailAndPassword() {
         if (uiState.email.isBlank() || uiState.password.isBlank()) {
-            uiState = uiState.copy(isEmailAndPasswordError = true)
+            uiState = uiState.copy(
+                isEmailAndPasswordError = true,
+                // TODO move to string resource
+                errorMessage = "Please fill all fields"
+            )
             return
         }
         viewModelScope.launch {
@@ -70,6 +74,7 @@ class SignInViewModel @Inject constructor(
                 is Response.Success -> {
                     uiState = uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
                 }
+
                 Response.Loading -> Unit
             }
         }

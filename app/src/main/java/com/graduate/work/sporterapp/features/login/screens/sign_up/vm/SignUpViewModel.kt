@@ -23,6 +23,8 @@ data class SignUpScreenState(
     val isGoogleAuthError: Boolean = false,
     val isUserNameError: Boolean = false,
     val errorMessage: String = "",
+    val isPolicyAccepted: Boolean = false,
+    val isPolicyAcceptedError: Boolean = false,
     val email: String = "",
     val password: String = "",
     val userName: String = "",
@@ -38,14 +40,15 @@ class SignUpViewModel @Inject constructor(
         private set
 
     fun onEmailChange(email: String) {
-        resetErrorState()
+        resetErrorFieldsState()
         uiState = uiState.copy(email = email)
     }
 
     fun onPasswordChange(password: String) {
-        resetErrorState()
+        resetErrorFieldsState()
         uiState = uiState.copy(password = password)
     }
+
 
     fun onUserNameChange(userName: String) {
         resetUserNameErrorState()
@@ -56,11 +59,11 @@ class SignUpViewModel @Inject constructor(
         uiState = uiState.copy(isUserNameError = false)
     }
 
-    private fun resetErrorState() {
+    private fun resetErrorFieldsState() {
         uiState = uiState.copy(isEmailAndPasswordError = false)
     }
 
-    fun resetErrorGoogleAuthState() {
+    fun resetErrors() {
         uiState = uiState.copy(isGoogleAuthError = false, errorMessage = "")
     }
 
@@ -95,7 +98,15 @@ class SignUpViewModel @Inject constructor(
 
     fun signUpWithMailAndPassword() {
         if (uiState.email.isBlank() || uiState.password.isBlank()) {
-            uiState = uiState.copy(isEmailAndPasswordError = true)
+            uiState = uiState.copy(
+                isEmailAndPasswordError = true,
+                // TODO move to string resource
+                errorMessage = "Please fill all fields"
+            )
+            return
+        }
+        if (!uiState.isPolicyAccepted) {
+            uiState = uiState.copy(isPolicyAcceptedError = true)
             return
         }
         if (uiState.userName.isBlank() || uiState.userName.length > 25) {
@@ -121,5 +132,10 @@ class SignUpViewModel @Inject constructor(
                 Response.Loading -> Unit
             }
         }
+    }
+
+    fun onAgreePolicy(agree: Boolean) {
+        uiState = uiState.copy(isPolicyAccepted = agree)
+        uiState = uiState.copy(isPolicyAcceptedError = false)
     }
 }

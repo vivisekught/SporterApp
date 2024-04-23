@@ -50,7 +50,6 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
                         }
                     }
             }
-
         } catch (e: Exception) {
             return Response.Failure("Unknown error")
         }
