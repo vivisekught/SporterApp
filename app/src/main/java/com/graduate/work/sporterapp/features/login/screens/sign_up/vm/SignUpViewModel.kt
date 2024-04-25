@@ -126,7 +126,8 @@ class SignUpViewModel @Inject constructor(
                 }
 
                 is Response.Success -> {
-                    uiState = uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
+                    uiState =
+                        uiState.copy(isLoading = false, shouldNavigateToEmailVerification = true)
                 }
 
                 Response.Loading -> Unit

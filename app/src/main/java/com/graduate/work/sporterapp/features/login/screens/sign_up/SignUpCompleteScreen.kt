@@ -28,7 +28,7 @@ fun SignUpCompleteScreen(navController: NavController) {
             }
 
             SignUpScreenEvent.NavigateToEmailVerification -> {
-                Log.d("AAAAAA", "NavigateToEmailVerification")
+                navController.navigate(AppNavigation.Auth.EmailVerificationScreen.route)
             }
 
             SignUpScreenEvent.NavigateToHome -> {

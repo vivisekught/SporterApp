@@ -58,12 +58,13 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
     override suspend fun signUpWithMailAndPassword(
         email: String,
         password: String,
-    ): Response<AuthResult> {
+    ): Response<Unit> {
         return suspendCoroutine { continuation ->
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        continuation.resume(Response.Success(task.result))
+                        auth.currentUser?.sendEmailVerification()
+                        continuation.resume(Response.Success(Unit))
                     } else {
                         continuation.resume(Response.Failure(task.exception?.localizedMessage.toString()))
                     }
@@ -79,9 +80,25 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
+                        if (task.result.user?.isEmailVerified == false) {
+                            task.result.user?.sendEmailVerification()
+                        }
                         continuation.resume(Response.Success(task.result))
                     } else {
                         continuation.resume(Response.Failure(task.exception?.localizedMessage.toString()))
+                    }
+                }
+        }
+    }
+
+    override suspend fun sendPasswordResetEmail(email: String): Response<Unit> {
+        return suspendCoroutine { continuation ->
+            auth.sendPasswordResetEmail(email)
+                .addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        continuation.resume(Response.Success(Unit))
+                    } else {
+                        continuation.resume(Response.Failure(it.exception?.localizedMessage.toString()))
                     }
                 }
         }

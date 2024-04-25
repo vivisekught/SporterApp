@@ -34,8 +34,11 @@ import com.graduate.work.sporterapp.features.login.ui.LoginIcon
 import com.graduate.work.sporterapp.features.login.ui.PasswordTextField
 
 @Composable
-fun SignInScreen(uiState: SignInScreenState, event: (SignInScreenEvent) -> Unit) {
+fun SignInScreen(email: String?, uiState: SignInScreenState, event: (SignInScreenEvent) -> Unit) {
     val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(Unit) {
+        email?.let { event(SignInScreenEvent.OnEmailChanged(it)) }
+    }
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
         val (
             welcomeTextRef,
@@ -73,9 +76,12 @@ fun SignInScreen(uiState: SignInScreenState, event: (SignInScreenEvent) -> Unit)
             }
         }
 
-        LaunchedEffect(uiState.shouldNavigateToOnBoarding) {
-            if (uiState.shouldNavigateToOnBoarding) {
-                event(SignInScreenEvent.NavigateToOnBoarding)
+        LaunchedEffect(
+            uiState.shouldNavigateToEmailVerification,
+            uiState.shouldNavigateToHomeScreen
+        ) {
+            if (uiState.shouldNavigateToEmailVerification) {
+                event(SignInScreenEvent.NavigateToEmailVerificationScreen)
             } else if (uiState.shouldNavigateToHomeScreen) {
                 event(SignInScreenEvent.NavigateToHomeScreen)
             }
@@ -122,7 +128,7 @@ fun SignInScreen(uiState: SignInScreenState, event: (SignInScreenEvent) -> Unit)
             },
         )
         TextButton(
-            onClick = { event(SignInScreenEvent.NavigateToForgetPassword) },
+            onClick = { event(SignInScreenEvent.NavigateToForgetPasswordScreen) },
             modifier = Modifier.constrainAs(forgetPasswordRef) {
                 top.linkTo(passwordFieldRef.bottom, margin = 8.dp)
                 end.linkTo(passwordFieldRef.end)
@@ -130,11 +136,7 @@ fun SignInScreen(uiState: SignInScreenState, event: (SignInScreenEvent) -> Unit)
             Text(text = stringResource(R.string.forget_password))
         }
         Button(
-            onClick = {
-                event(
-                    SignInScreenEvent.SignInWithEmailAndPassword
-                )
-            },
+            onClick = { event(SignInScreenEvent.SignInWithEmailAndPassword) },
             enabled = !uiState.isLoading,
             modifier = Modifier.constrainAs(nextButtonRef) {
                 top.linkTo(forgetPasswordRef.bottom, margin = 32.dp)
@@ -182,7 +184,7 @@ fun SignInScreen(uiState: SignInScreenState, event: (SignInScreenEvent) -> Unit)
             centerHorizontallyTo(parent)
         }, verticalAlignment = Alignment.CenterVertically) {
             Text(text = stringResource(R.string.don_t_have_an_account))
-            TextButton(onClick = { event(SignInScreenEvent.NavigateToSignUp) }) {
+            TextButton(onClick = { event(SignInScreenEvent.NavigateToSignUpScreen) }) {
                 Text(text = stringResource(R.string.sign_up))
             }
         }

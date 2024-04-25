@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.graduate.work.sporterapp.features.login.screens.email_verification.EmailVerificationCompleteScreen
 import com.graduate.work.sporterapp.features.login.screens.sign_in.SignInCompleteScreen
 import com.graduate.work.sporterapp.features.login.screens.sign_up.SignUpCompleteScreen
 import com.graduate.work.sporterapp.navigation.AppNavigation
@@ -42,7 +43,10 @@ class MainActivity : ComponentActivity() {
                             route = AppNavigation.Auth.AUTH_FEATURE_SCREEN_ROUTE,
                         ) {
                             composable(AppNavigation.Auth.SignInScreen.route) {
-                                SignInCompleteScreen(navController = navController)
+                                SignInCompleteScreen(
+                                    email = authState?.email,
+                                    navController = navController
+                                )
                             }
                             composable(AppNavigation.Auth.SignUpScreen.route) {
                                 SignUpCompleteScreen(navController = navController)
@@ -51,7 +55,10 @@ class MainActivity : ComponentActivity() {
 
                             }
                             composable(AppNavigation.Auth.EmailVerificationScreen.route) {
-
+                                EmailVerificationCompleteScreen(
+                                    email = authState?.email ?: "",
+                                    navController = navController,
+                                )
                             }
                         }
                     }

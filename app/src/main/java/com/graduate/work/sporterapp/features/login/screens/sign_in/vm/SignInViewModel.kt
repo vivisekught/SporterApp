@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.credentials.GetCredentialResponse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.AuthResult
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.AuthWithGoogleUseCase
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.SignInWithEmailAndPasswordUseCase
 import com.graduate.work.sporterapp.utils.core.auth.Response
@@ -15,7 +16,7 @@ import javax.inject.Inject
 
 data class SignInScreenState(
     val isLoading: Boolean = false,
-    val shouldNavigateToOnBoarding: Boolean = false,
+    val shouldNavigateToEmailVerification: Boolean = false,
     val shouldNavigateToHomeScreen: Boolean = false,
     val isEmailAndPasswordError: Boolean = false,
     val isGoogleAuthError: Boolean = false,
@@ -60,8 +61,10 @@ class SignInViewModel @Inject constructor(
             )
             return
         }
+        uiState = uiState.copy(isLoading = true)
         viewModelScope.launch {
-            val response = signInWithEmailAndPasswordUseCase(uiState.email, uiState.password)
+            val response: Response<AuthResult> =
+                signInWithEmailAndPasswordUseCase(uiState.email, uiState.password)
             when (response) {
                 is Response.Failure -> {
                     uiState = uiState.copy(
@@ -72,7 +75,11 @@ class SignInViewModel @Inject constructor(
                 }
 
                 is Response.Success -> {
-                    uiState = uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
+                    uiState = if (response.data?.user?.isEmailVerified == false) {
+                        uiState.copy(isLoading = false, shouldNavigateToEmailVerification = true)
+                    } else {
+                        uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
+                    }
                 }
 
                 Response.Loading -> Unit
@@ -90,13 +97,8 @@ class SignInViewModel @Inject constructor(
                         errorMessage = response.message
                     )
                 }
-
                 is Response.Success -> {
-                    uiState = if (response.data?.additionalUserInfo?.isNewUser == true) {
-                        uiState.copy(isLoading = false, shouldNavigateToOnBoarding = true)
-                    } else {
-                        uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
-                    }
+                    uiState = uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
                 }
 
                 Response.Loading -> Unit

@@ -12,7 +12,9 @@ interface FirebaseAuthRepository {
 
     suspend fun authWithGoogle(credential: GetCredentialResponse): Response<AuthResult>
 
-    suspend fun signUpWithMailAndPassword(email: String, password: String): Response<AuthResult>
+    suspend fun signUpWithMailAndPassword(email: String, password: String): Response<Unit>
 
     suspend fun signInWithEmailAndPassword(email: String, password: String): Response<AuthResult>
+
+    suspend fun sendPasswordResetEmail(email: String): Response<Unit>
 }
