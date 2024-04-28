@@ -32,6 +32,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import com.graduate.work.sporterapp.R
+import com.graduate.work.sporterapp.features.login.core.LoginCore.POLICY_LINK
+import com.graduate.work.sporterapp.features.login.core.LoginCore.TERMS_LINK
 
 @Composable
 fun PolicyAndTermsText(
@@ -46,7 +48,7 @@ fun PolicyAndTermsText(
         withStyle(SpanStyle(color = color)) {
             append(stringResource(R.string.by_checking_the_box_you_agree_to_our))
         }
-        pushStringAnnotation(tag = "policy", annotation = "https://google.com/policy")
+        pushStringAnnotation(tag = "policy", annotation = POLICY_LINK)
         withStyle(
             style = SpanStyle(
                 textDecoration = TextDecoration.Underline,
@@ -59,7 +61,7 @@ fun PolicyAndTermsText(
         withStyle(SpanStyle(color = color)) {
             append(stringResource(R.string.and))
         }
-        pushStringAnnotation(tag = "terms", annotation = "https://google.com/terms")
+        pushStringAnnotation(tag = "terms", annotation = TERMS_LINK)
         withStyle(
             style = SpanStyle(
                 textDecoration = TextDecoration.Underline,

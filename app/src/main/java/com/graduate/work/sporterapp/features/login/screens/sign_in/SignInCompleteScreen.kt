@@ -4,11 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.navOptions
+import com.graduate.work.sporterapp.features.login.core.LoginCore.getGoogleCredential
 import com.graduate.work.sporterapp.features.login.screens.sign_in.screen.SignInScreen
 import com.graduate.work.sporterapp.features.login.screens.sign_in.screen.SignInScreenEvent
 import com.graduate.work.sporterapp.features.login.screens.sign_in.vm.SignInViewModel
 import com.graduate.work.sporterapp.navigation.AppNavigation
-import com.graduate.work.sporterapp.utils.core.Core.getGoogleCredential
 import kotlinx.coroutines.launch
 
 @Composable

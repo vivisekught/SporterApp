@@ -1,16 +1,17 @@
 package com.graduate.work.sporterapp.features.login.screens.sign_up
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.graduate.work.sporterapp.features.login.core.LoginCore.POLICY_LINK
+import com.graduate.work.sporterapp.features.login.core.LoginCore.TERMS_LINK
+import com.graduate.work.sporterapp.features.login.core.LoginCore.getGoogleCredential
+import com.graduate.work.sporterapp.features.login.core.LoginCore.openLinkInWebBrowser
 import com.graduate.work.sporterapp.features.login.screens.sign_up.screen.SignUpScreen
 import com.graduate.work.sporterapp.features.login.screens.sign_up.screen.SignUpScreenEvent
 import com.graduate.work.sporterapp.features.login.screens.sign_up.vm.SignUpViewModel
 import com.graduate.work.sporterapp.navigation.AppNavigation
-import com.graduate.work.sporterapp.utils.core.Core.getGoogleCredential
-import com.graduate.work.sporterapp.utils.core.Core.openLinkInWebBrowser
 import kotlinx.coroutines.launch
 
 @Composable
@@ -32,11 +33,7 @@ fun SignUpCompleteScreen(navController: NavController) {
             }
 
             SignUpScreenEvent.NavigateToHome -> {
-                Log.d("AAAAAA", "NavigateToHome")
-            }
-
-            SignUpScreenEvent.NavigateToOnBoarding -> {
-                Log.d("AAAAAA", "NavigateToOnBoarding")
+                // TODO: navigate to home
             }
 
             SignUpScreenEvent.NavigateToSignIn ->
@@ -48,14 +45,11 @@ fun SignUpCompleteScreen(navController: NavController) {
             SignUpScreenEvent.SignUpWithEmailAndPassword -> viewModel.signUpWithMailAndPassword()
             SignUpScreenEvent.ResetGoogleAuthErrorState -> viewModel.resetErrors()
             SignUpScreenEvent.OpenPolicy -> {
-                openLinkInWebBrowser(
-                    context,
-                    "https://sites.google.com/view/sporterapppolicy/policy"
-                )
+                openLinkInWebBrowser(context, POLICY_LINK)
             }
 
             SignUpScreenEvent.OpenTerms -> {
-                openLinkInWebBrowser(context, "https://sites.google.com/view/sporterappterms/terms")
+                openLinkInWebBrowser(context, TERMS_LINK)
             }
 
             is SignUpScreenEvent.OnPolicyAndTermsChanged -> {

@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthResult
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.AuthWithGoogleUseCase
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.SignInWithEmailAndPasswordUseCase
-import com.graduate.work.sporterapp.utils.core.auth.Response
+import com.graduate.work.sporterapp.features.login.core.AuthResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -63,45 +63,42 @@ class SignInViewModel @Inject constructor(
         }
         uiState = uiState.copy(isLoading = true)
         viewModelScope.launch {
-            val response: Response<AuthResult> =
+            val authResponse: AuthResponse<AuthResult> =
                 signInWithEmailAndPasswordUseCase(uiState.email, uiState.password)
-            when (response) {
-                is Response.Failure -> {
+            when (authResponse) {
+                is AuthResponse.Failure -> {
                     uiState = uiState.copy(
                         isLoading = false,
                         isEmailAndPasswordError = true,
-                        errorMessage = response.message
+                        errorMessage = authResponse.message
                     )
                 }
 
-                is Response.Success -> {
-                    uiState = if (response.data?.user?.isEmailVerified == false) {
+                is AuthResponse.Success -> {
+                    uiState = if (authResponse.data?.user?.isEmailVerified == false) {
                         uiState.copy(isLoading = false, shouldNavigateToEmailVerification = true)
                     } else {
                         uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
                     }
                 }
-
-                Response.Loading -> Unit
             }
         }
     }
 
-    fun authWithGoogle(credentialResponse: Response<GetCredentialResponse>) {
+    fun authWithGoogle(credentialAuthResponse: AuthResponse<GetCredentialResponse>) {
         viewModelScope.launch {
-            when (val response = authWithGoogleUseCase(credentialResponse)) {
-                is Response.Failure -> {
-                    uiState = uiState.copy(
+            uiState = when (val response = authWithGoogleUseCase(credentialAuthResponse)) {
+                is AuthResponse.Failure -> {
+                    uiState.copy(
                         isLoading = false,
                         isGoogleAuthError = true,
                         errorMessage = response.message
                     )
                 }
-                is Response.Success -> {
-                    uiState = uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
-                }
 
-                Response.Loading -> Unit
+                is AuthResponse.Success -> {
+                    uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
+                }
             }
         }
     }

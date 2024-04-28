@@ -7,7 +7,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.graduate.work.sporterapp.domain.firebase.auth.repositories.FirebaseAuthRepository
-import com.graduate.work.sporterapp.utils.core.auth.Response
+import com.graduate.work.sporterapp.features.login.core.AuthResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,7 +33,7 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
         }
     }.stateIn(scope, SharingStarted.WhileSubscribed(), auth.currentUser)
 
-    override suspend fun authWithGoogle(credential: GetCredentialResponse): Response<AuthResult> {
+    override suspend fun authWithGoogle(credential: GetCredentialResponse): AuthResponse<AuthResult> {
         try {
             val googleIdTokenCredential =
                 GoogleIdTokenCredential.createFrom(credential.credential.data)
@@ -44,29 +44,30 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
                 auth.signInWithCredential(firebaseCredential)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            continuation.resume(Response.Success(task.result))
+                            continuation.resume(AuthResponse.Success(task.result))
                         } else {
-                            continuation.resume(Response.Failure(task.exception?.localizedMessage.toString()))
+                            continuation.resume(AuthResponse.Failure(task.exception?.localizedMessage.toString()))
                         }
                     }
             }
         } catch (e: Exception) {
-            return Response.Failure("Unknown error")
+            // TODO move to string resource
+            return AuthResponse.Failure("Unknown error")
         }
     }
 
     override suspend fun signUpWithMailAndPassword(
         email: String,
         password: String,
-    ): Response<Unit> {
+    ): AuthResponse<Unit> {
         return suspendCoroutine { continuation ->
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         auth.currentUser?.sendEmailVerification()
-                        continuation.resume(Response.Success(Unit))
+                        continuation.resume(AuthResponse.Success(Unit))
                     } else {
-                        continuation.resume(Response.Failure(task.exception?.localizedMessage.toString()))
+                        continuation.resume(AuthResponse.Failure(task.exception?.localizedMessage.toString()))
                     }
                 }
         }
@@ -75,7 +76,7 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
     override suspend fun signInWithEmailAndPassword(
         email: String,
         password: String,
-    ): Response<AuthResult> {
+    ): AuthResponse<AuthResult> {
         return suspendCoroutine { continuation ->
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
@@ -83,22 +84,22 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
                         if (task.result.user?.isEmailVerified == false) {
                             task.result.user?.sendEmailVerification()
                         }
-                        continuation.resume(Response.Success(task.result))
+                        continuation.resume(AuthResponse.Success(task.result))
                     } else {
-                        continuation.resume(Response.Failure(task.exception?.localizedMessage.toString()))
+                        continuation.resume(AuthResponse.Failure(task.exception?.localizedMessage.toString()))
                     }
                 }
         }
     }
 
-    override suspend fun sendPasswordResetEmail(email: String): Response<Unit> {
+    override suspend fun sendPasswordResetEmail(email: String): AuthResponse<Unit> {
         return suspendCoroutine { continuation ->
             auth.sendPasswordResetEmail(email)
                 .addOnCompleteListener {
                     if (it.isSuccessful) {
-                        continuation.resume(Response.Success(Unit))
+                        continuation.resume(AuthResponse.Success(Unit))
                     } else {
-                        continuation.resume(Response.Failure(it.exception?.localizedMessage.toString()))
+                        continuation.resume(AuthResponse.Failure(it.exception?.localizedMessage.toString()))
                     }
                 }
         }

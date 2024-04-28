@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.presentation
+package com.graduate.work.sporterapp.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

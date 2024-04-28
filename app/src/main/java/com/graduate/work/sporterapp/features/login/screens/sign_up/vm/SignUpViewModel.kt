@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.AuthWithGoogleUseCase
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.SignUpWithMailAndPasswordUseCase
-import com.graduate.work.sporterapp.utils.core.auth.Response
+import com.graduate.work.sporterapp.features.login.core.AuthResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,8 +16,7 @@ import javax.inject.Inject
 
 data class SignUpScreenState(
     val isLoading: Boolean = false,
-    val shouldNavigateToOnBoarding: Boolean = false,
-    val shouldNavigateToHomeScreen: Boolean = false,
+    val shouldNavigateToHome: Boolean = false,
     val shouldNavigateToEmailVerification: Boolean = false,
     val isEmailAndPasswordError: Boolean = false,
     val isGoogleAuthError: Boolean = false,
@@ -72,26 +71,20 @@ class SignUpViewModel @Inject constructor(
         uiState = uiState.copy(isLoading = true)
     }
 
-    fun authWithGoogle(credentialResponse: Response<GetCredentialResponse>) {
+    fun authWithGoogle(credentialAuthResponse: AuthResponse<GetCredentialResponse>) {
         viewModelScope.launch {
-            when (val response = authWithGoogleUseCase(credentialResponse)) {
-                is Response.Failure -> {
-                    uiState = uiState.copy(
+            uiState = when (val response = authWithGoogleUseCase(credentialAuthResponse)) {
+                is AuthResponse.Failure -> {
+                    uiState.copy(
                         isLoading = false,
                         isGoogleAuthError = true,
                         errorMessage = response.message
                     )
                 }
 
-                is Response.Success -> {
-                    uiState = if (response.data?.additionalUserInfo?.isNewUser == true) {
-                        uiState.copy(isLoading = false, shouldNavigateToOnBoarding = true)
-                    } else {
-                        uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
-                    }
+                is AuthResponse.Success -> {
+                    uiState.copy(isLoading = false, shouldNavigateToHome = true)
                 }
-
-                Response.Loading -> Unit
             }
         }
     }
@@ -109,28 +102,25 @@ class SignUpViewModel @Inject constructor(
             uiState = uiState.copy(isPolicyAcceptedError = true)
             return
         }
-        if (uiState.userName.isBlank() || uiState.userName.length > 25) {
+        if (uiState.userName.isBlank() || uiState.userName.length > MAX_NICKNAME_LENGTH) {
             uiState = uiState.copy(isUserNameError = true)
             return
         }
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true)
             val response = signUpWithMailAndPasswordUseCase(uiState.email, uiState.password)
-            when (response) {
-                is Response.Failure -> {
-                    uiState = uiState.copy(
+            uiState = when (response) {
+                is AuthResponse.Failure -> {
+                    uiState.copy(
                         isLoading = false,
                         isEmailAndPasswordError = true,
                         errorMessage = response.message
                     )
                 }
 
-                is Response.Success -> {
-                    uiState =
-                        uiState.copy(isLoading = false, shouldNavigateToEmailVerification = true)
+                is AuthResponse.Success -> {
+                    uiState.copy(isLoading = false, shouldNavigateToEmailVerification = true)
                 }
-
-                Response.Loading -> Unit
             }
         }
     }
@@ -138,5 +128,9 @@ class SignUpViewModel @Inject constructor(
     fun onAgreePolicy(agree: Boolean) {
         uiState = uiState.copy(isPolicyAccepted = agree)
         uiState = uiState.copy(isPolicyAcceptedError = false)
+    }
+
+    companion object {
+        private const val MAX_NICKNAME_LENGTH = 25
     }
 }

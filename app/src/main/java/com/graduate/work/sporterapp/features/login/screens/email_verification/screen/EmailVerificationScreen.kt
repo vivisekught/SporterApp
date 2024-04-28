@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -15,6 +16,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.graduate.work.sporterapp.R
 
 @Composable
 fun EmailVerificationScreen(email: String, navigateToSignIn: () -> Unit) {
@@ -26,7 +28,7 @@ fun EmailVerificationScreen(email: String, navigateToSignIn: () -> Unit) {
         ) = createRefs()
 
         Text(
-            text = "Almost there",
+            text = stringResource(R.string.almost_there),
             modifier = Modifier
                 .constrainAs(welcomeTextRef) {
                     centerVerticallyTo(parent)
@@ -36,7 +38,7 @@ fun EmailVerificationScreen(email: String, navigateToSignIn: () -> Unit) {
         )
         val annotatedString = buildAnnotatedString {
             withStyle(SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
-                append("Please verify your email: ")
+                append(stringResource(R.string.please_verify_your_email))
             }
             withStyle(
                 SpanStyle(
@@ -47,7 +49,7 @@ fun EmailVerificationScreen(email: String, navigateToSignIn: () -> Unit) {
                 append(email)
             }
             withStyle(SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
-                append(" to continue")
+                append(stringResource(R.string.to_continue))
             }
         }
         Text(
@@ -69,7 +71,7 @@ fun EmailVerificationScreen(email: String, navigateToSignIn: () -> Unit) {
                 width = Dimension.percent(0.9f)
             }) {
             Text(
-                text = "Sign In",
+                text = stringResource(R.string.sign_in),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(4.dp)
             )

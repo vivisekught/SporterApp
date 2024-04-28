@@ -76,12 +76,13 @@ fun SignUpScreen(uiState: SignUpScreenState, event: (SignUpScreenEvent) -> Unit)
             }
         }
 
-        LaunchedEffect(uiState) {
-            if (uiState.shouldNavigateToOnBoarding) {
-                event(SignUpScreenEvent.NavigateToOnBoarding)
-            } else if (uiState.shouldNavigateToHomeScreen) {
+        LaunchedEffect(uiState.shouldNavigateToHome) {
+            if (uiState.shouldNavigateToHome) {
                 event(SignUpScreenEvent.NavigateToHome)
-            } else if (uiState.shouldNavigateToEmailVerification) {
+            }
+        }
+        LaunchedEffect(uiState.shouldNavigateToEmailVerification) {
+            if (uiState.shouldNavigateToEmailVerification) {
                 event(SignUpScreenEvent.NavigateToEmailVerification)
             }
         }

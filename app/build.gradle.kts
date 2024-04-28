@@ -10,7 +10,7 @@ plugins {
 }
 
 val gradleProperties = Properties()
-val gradlePropertiesFile: File = rootProject.file("gradle.properties")
+val gradlePropertiesFile: File = rootProject.file("local.properties")
 if (gradlePropertiesFile.exists()) {
     gradleProperties.load(gradlePropertiesFile.inputStream())
 }

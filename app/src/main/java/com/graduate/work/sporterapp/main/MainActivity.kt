@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.presentation
+package com.graduate.work.sporterapp.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.graduate.work.sporterapp.features.login.screens.email_verification.EmailVerificationCompleteScreen
+import com.graduate.work.sporterapp.features.login.screens.forget_password.ForgetPasswordCompleteScreen
 import com.graduate.work.sporterapp.features.login.screens.sign_in.SignInCompleteScreen
 import com.graduate.work.sporterapp.features.login.screens.sign_up.SignUpCompleteScreen
 import com.graduate.work.sporterapp.navigation.AppNavigation
@@ -52,7 +53,7 @@ class MainActivity : ComponentActivity() {
                                 SignUpCompleteScreen(navController = navController)
                             }
                             composable(AppNavigation.Auth.ForgetPasswordScreen.route) {
-
+                                ForgetPasswordCompleteScreen(navController = navController)
                             }
                             composable(AppNavigation.Auth.EmailVerificationScreen.route) {
                                 EmailVerificationCompleteScreen(

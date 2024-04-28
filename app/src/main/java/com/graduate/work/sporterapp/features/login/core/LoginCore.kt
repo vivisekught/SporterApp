@@ -1,35 +1,23 @@
-package com.graduate.work.sporterapp.utils.core
+package com.graduate.work.sporterapp.features.login.core
 
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.NoCredentialException
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.graduate.work.sporterapp.BuildConfig
-import com.graduate.work.sporterapp.utils.core.auth.Response
 import java.security.MessageDigest
 import java.util.UUID
 
-object Core {
-    @Composable
-    inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navController: NavController): T {
-        val navGraphRoute = destination.parent?.route ?: return viewModel()
-        val parentEntry = remember(this) {
-            navController.getBackStackEntry(navGraphRoute)
-        }
-        return viewModel(parentEntry)
-    }
+object LoginCore {
+
+    const val POLICY_LINK = "https://sites.google.com/view/sporterapppolicy/policy"
+    const val TERMS_LINK = "https://sites.google.com/view/sporterappterms/terms"
 
     fun openLinkInWebBrowser(context: Context, link: String) {
         val uri = Uri.parse(link)
@@ -37,7 +25,7 @@ object Core {
         context.startActivity(intent)
     }
 
-    suspend fun Context.getGoogleCredential(): Response<GetCredentialResponse> {
+    suspend fun Context.getGoogleCredential(): AuthResponse<GetCredentialResponse> {
         val request = getGoogleRequest()
         val credentialManager = CredentialManager.create(this)
         return try {
@@ -45,15 +33,15 @@ object Core {
                 context = this,
                 request = request
             )
-            Response.Success(result)
+            AuthResponse.Success(result)
         } catch (e: GetCredentialCancellationException) {
-            Response.Failure("User cancelled the request")
+            AuthResponse.Failure("User cancelled the request")
         } catch (e: NoCredentialException) {
-            Response.Failure("Credentials not found")
+            AuthResponse.Failure("Credentials not found")
         } catch (e: GetCredentialException) {
-            Response.Failure("Error fetching the credentials")
+            AuthResponse.Failure("Error fetching the credentials")
         } catch (e: Exception) {
-            Response.Failure("Something went wrong, please try later")
+            AuthResponse.Failure("Something went wrong, please try later")
         }
     }
 

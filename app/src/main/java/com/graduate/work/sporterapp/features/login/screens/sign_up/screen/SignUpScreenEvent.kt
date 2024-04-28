@@ -7,7 +7,6 @@ sealed class SignUpScreenEvent {
     data object NavigateToSignIn : SignUpScreenEvent()
     data object NavigateToEmailVerification : SignUpScreenEvent()
     data object NavigateToHome : SignUpScreenEvent()
-    data object NavigateToOnBoarding : SignUpScreenEvent()
     data object SignUpWithEmailAndPassword : SignUpScreenEvent()
     data class AuthWithGoogle(val scope: CoroutineScope, val context: Context) : SignUpScreenEvent()
     data class OnUserNameChanged(val userName: String) : SignUpScreenEvent()
