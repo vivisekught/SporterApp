@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.features.login.core
+package com.graduate.work.sporterapp.features.login.utils
 
 import android.content.Context
 import android.content.Intent
@@ -11,10 +11,11 @@ import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.NoCredentialException
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.graduate.work.sporterapp.BuildConfig
+import com.graduate.work.sporterapp.core.Response
 import java.security.MessageDigest
 import java.util.UUID
 
-object LoginCore {
+object LoginUtils {
 
     const val POLICY_LINK = "https://sites.google.com/view/sporterapppolicy/policy"
     const val TERMS_LINK = "https://sites.google.com/view/sporterappterms/terms"
@@ -25,7 +26,7 @@ object LoginCore {
         context.startActivity(intent)
     }
 
-    suspend fun Context.getGoogleCredential(): AuthResponse<GetCredentialResponse> {
+    suspend fun Context.getGoogleCredential(): Response<GetCredentialResponse> {
         val request = getGoogleRequest()
         val credentialManager = CredentialManager.create(this)
         return try {
@@ -33,15 +34,15 @@ object LoginCore {
                 context = this,
                 request = request
             )
-            AuthResponse.Success(result)
+            Response.Success(result)
         } catch (e: GetCredentialCancellationException) {
-            AuthResponse.Failure("User cancelled the request")
+            Response.Failure("User cancelled the request")
         } catch (e: NoCredentialException) {
-            AuthResponse.Failure("Credentials not found")
+            Response.Failure("Credentials not found")
         } catch (e: GetCredentialException) {
-            AuthResponse.Failure("Error fetching the credentials")
+            Response.Failure("Error fetching the credentials")
         } catch (e: Exception) {
-            AuthResponse.Failure("Something went wrong, please try later")
+            Response.Failure("Something went wrong, please try later")
         }
     }
 

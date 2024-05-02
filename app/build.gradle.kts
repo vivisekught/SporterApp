@@ -84,25 +84,40 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
 
+    // compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
     implementation(libs.androidx.navigation.compose)
-
-    implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
+    // hilt
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     kapt(libs.hilt.android.compiler)
 
+    // firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.auth)
-    implementation(libs.play.services.auth)
 
+    // google auth
     implementation(libs.androidx.credentials.v122)
     implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.play.services.auth)
     implementation(libs.googleid)
+
+
+    // mapbox
+    implementation(libs.android.maps)
+    implementation(libs.mapbox.sdk.services)
+    implementation(libs.maps.compose)
+
+
+    // google location services
+    implementation(libs.play.services.location)
 
 }

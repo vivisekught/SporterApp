@@ -1,5 +1,6 @@
 [versions]
 agp = "8.3.2"
+android = "11.3.1"
 constraintlayoutCompose = "1.0.1"
 credentialsVersion = "1.2.2"
 credentialsPlayServicesAuth = "1.2.2"
@@ -14,6 +15,8 @@ junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 appcompat = "1.6.1"
+mapboxSdkServices = "7.0.0"
+mapsCompose = "0.1.0"
 material = "1.11.0"
 lifecycleRuntimeKtx = "2.7.0"
 activityCompose = "1.9.0"
@@ -25,8 +28,11 @@ navigationCompose = "2.7.7"
 activity = "1.9.0"
 constraintlayout = "2.1.4"
 playServicesAuth = "21.1.0"
+playServicesLocation = "21.2.0"
+lifecycleRuntimeCompose = "2.7.0"
 
 [libraries]
+android-maps = { module = "com.mapbox.maps:android", version.ref = "android" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-credentials-v122 = { module = "androidx.credentials:credentials", version.ref = "credentialsVersion" }
@@ -46,6 +52,8 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+mapbox-sdk-services = { module = "com.mapbox.mapboxsdk:mapbox-sdk-services", version.ref = "mapboxSdkServices" }
+maps-compose = { module = "com.mapbox.extension:maps-compose", version.ref = "mapsCompose" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -60,6 +68,8 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
+play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "playServicesLocation" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 
 [bundles]
 compose = [

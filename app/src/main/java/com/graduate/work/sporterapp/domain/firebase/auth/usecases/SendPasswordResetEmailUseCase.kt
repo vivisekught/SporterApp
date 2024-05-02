@@ -1,6 +1,6 @@
 package com.graduate.work.sporterapp.domain.firebase.auth.usecases
 
-import com.graduate.work.sporterapp.domain.firebase.auth.repositories.FirebaseAuthRepository
+import com.graduate.work.sporterapp.domain.firebase.auth.FirebaseAuthRepository
 import javax.inject.Inject
 
 class SendPasswordResetEmailUseCase @Inject constructor(

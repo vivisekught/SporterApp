@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.utils.ui.theme
+package com.graduate.work.sporterapp.core.ui.theme
 import androidx.compose.ui.graphics.Color
 
 val md_theme_light_primary = Color(0xFF466810)

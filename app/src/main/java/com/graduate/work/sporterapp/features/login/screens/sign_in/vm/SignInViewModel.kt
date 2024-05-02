@@ -7,9 +7,9 @@ import androidx.credentials.GetCredentialResponse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.AuthResult
+import com.graduate.work.sporterapp.core.Response
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.AuthWithGoogleUseCase
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.SignInWithEmailAndPasswordUseCase
-import com.graduate.work.sporterapp.features.login.core.AuthResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -63,19 +63,19 @@ class SignInViewModel @Inject constructor(
         }
         uiState = uiState.copy(isLoading = true)
         viewModelScope.launch {
-            val authResponse: AuthResponse<AuthResult> =
+            val response: Response<AuthResult> =
                 signInWithEmailAndPasswordUseCase(uiState.email, uiState.password)
-            when (authResponse) {
-                is AuthResponse.Failure -> {
+            when (response) {
+                is Response.Failure -> {
                     uiState = uiState.copy(
                         isLoading = false,
                         isEmailAndPasswordError = true,
-                        errorMessage = authResponse.message
+                        errorMessage = response.message
                     )
                 }
 
-                is AuthResponse.Success -> {
-                    uiState = if (authResponse.data?.user?.isEmailVerified == false) {
+                is Response.Success -> {
+                    uiState = if (response.data?.user?.isEmailVerified == false) {
                         uiState.copy(isLoading = false, shouldNavigateToEmailVerification = true)
                     } else {
                         uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
@@ -85,10 +85,10 @@ class SignInViewModel @Inject constructor(
         }
     }
 
-    fun authWithGoogle(credentialAuthResponse: AuthResponse<GetCredentialResponse>) {
+    fun authWithGoogle(credentialResponse: Response<GetCredentialResponse>) {
         viewModelScope.launch {
-            uiState = when (val response = authWithGoogleUseCase(credentialAuthResponse)) {
-                is AuthResponse.Failure -> {
+            uiState = when (val response = authWithGoogleUseCase(credentialResponse)) {
+                is Response.Failure -> {
                     uiState.copy(
                         isLoading = false,
                         isGoogleAuthError = true,
@@ -96,7 +96,7 @@ class SignInViewModel @Inject constructor(
                     )
                 }
 
-                is AuthResponse.Success -> {
+                is Response.Success -> {
                     uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
                 }
             }

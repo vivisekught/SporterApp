@@ -25,4 +25,20 @@
     <string name="please_verify_your_email">"Please verify your email: "</string>
     <string name="almost_there">Almost there</string>
     <string name="to_continue">" to continue"</string>
+    <string name="street">Street</string>
+    <string name="satellite">Satellite</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="start_here">Start here</string>
+    <string name="set_as_destination">Set as destination</string>
+    <string name="add_new_point">Add new point</string>
+    <string name="close_dialog">Close dialog</string>
+    <string name="new_point">New point: %1$s, %2$s</string>
+    <string name="my_location">My location</string>
+    <string name="map_layers">Map layers</string>
+    <string name="info">Info</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="location_permission_required">Location permission required</string>
+    <string name="to_ensure_the_app_works_properly_enable_location_permission">To ensure the app works properly, enable location permission</string>
 </resources>

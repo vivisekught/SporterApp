@@ -18,9 +18,9 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.graduate.work.sporterapp.R
+import com.graduate.work.sporterapp.core.ui.theme.AppTheme
 import com.graduate.work.sporterapp.features.login.screens.forget_password.vm.ForgetPasswordScreenState
 import com.graduate.work.sporterapp.features.login.ui.EmailTextField
-import com.graduate.work.sporterapp.utils.ui.theme.AppTheme
 
 @Preview(showSystemUi = true)
 @Composable

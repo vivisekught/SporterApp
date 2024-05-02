@@ -2,20 +2,20 @@ package com.graduate.work.sporterapp.domain.firebase.auth.usecases
 
 import androidx.credentials.GetCredentialResponse
 import com.google.firebase.auth.AuthResult
-import com.graduate.work.sporterapp.domain.firebase.auth.repositories.FirebaseAuthRepository
-import com.graduate.work.sporterapp.features.login.core.AuthResponse
+import com.graduate.work.sporterapp.core.Response
+import com.graduate.work.sporterapp.domain.firebase.auth.FirebaseAuthRepository
 import javax.inject.Inject
 
 class AuthWithGoogleUseCase @Inject constructor(
     private val authRepository: FirebaseAuthRepository,
 ) {
-    suspend operator fun invoke(credentialAuthResponse: AuthResponse<GetCredentialResponse>): AuthResponse<AuthResult> {
-        if (credentialAuthResponse is AuthResponse.Failure) {
-            return AuthResponse.Failure(credentialAuthResponse.message)
+    suspend operator fun invoke(credentialResponse: Response<GetCredentialResponse>): Response<AuthResult> {
+        if (credentialResponse is Response.Failure) {
+            return Response.Failure(credentialResponse.message)
         }
         val credential =
-            (credentialAuthResponse as AuthResponse.Success<GetCredentialResponse>).data ?: run {
-                return AuthResponse.Failure("Check your internet connection")
+            (credentialResponse as Response.Success<GetCredentialResponse>).data ?: run {
+                return Response.Failure("Check your internet connection")
             }
         return authRepository.authWithGoogle(credential)
     }

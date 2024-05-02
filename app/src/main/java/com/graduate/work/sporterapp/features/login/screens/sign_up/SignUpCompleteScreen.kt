@@ -4,13 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.graduate.work.sporterapp.features.login.core.LoginCore.POLICY_LINK
-import com.graduate.work.sporterapp.features.login.core.LoginCore.TERMS_LINK
-import com.graduate.work.sporterapp.features.login.core.LoginCore.getGoogleCredential
-import com.graduate.work.sporterapp.features.login.core.LoginCore.openLinkInWebBrowser
 import com.graduate.work.sporterapp.features.login.screens.sign_up.screen.SignUpScreen
 import com.graduate.work.sporterapp.features.login.screens.sign_up.screen.SignUpScreenEvent
 import com.graduate.work.sporterapp.features.login.screens.sign_up.vm.SignUpViewModel
+import com.graduate.work.sporterapp.features.login.utils.LoginUtils.POLICY_LINK
+import com.graduate.work.sporterapp.features.login.utils.LoginUtils.TERMS_LINK
+import com.graduate.work.sporterapp.features.login.utils.LoginUtils.getGoogleCredential
+import com.graduate.work.sporterapp.features.login.utils.LoginUtils.openLinkInWebBrowser
 import com.graduate.work.sporterapp.navigation.AppNavigation
 import kotlinx.coroutines.launch
 

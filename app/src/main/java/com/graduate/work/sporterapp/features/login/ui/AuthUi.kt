@@ -32,8 +32,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import com.graduate.work.sporterapp.R
-import com.graduate.work.sporterapp.features.login.core.LoginCore.POLICY_LINK
-import com.graduate.work.sporterapp.features.login.core.LoginCore.TERMS_LINK
+import com.graduate.work.sporterapp.features.login.utils.LoginUtils.POLICY_LINK
+import com.graduate.work.sporterapp.features.login.utils.LoginUtils.TERMS_LINK
 
 @Composable
 fun PolicyAndTermsText(

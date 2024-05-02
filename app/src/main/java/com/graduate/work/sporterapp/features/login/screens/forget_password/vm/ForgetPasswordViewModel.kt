@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.graduate.work.sporterapp.core.Response
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.SendPasswordResetEmailUseCase
-import com.graduate.work.sporterapp.features.login.core.AuthResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -45,11 +45,11 @@ class ForgetPasswordViewModel @Inject constructor(
             uiState = uiState.copy(isLoading = true)
             val response = sendPasswordResetEmailUseCase(uiState.email)
             uiState = when (response) {
-                is AuthResponse.Success -> {
+                is Response.Success -> {
                     uiState.copy(isLoading = false, shouldNavigateToSignIn = true)
                 }
 
-                is AuthResponse.Failure -> {
+                is Response.Failure -> {
                     uiState.copy(isLoading = false, isEmailError = true)
                 }
             }

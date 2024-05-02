@@ -6,9 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.credentials.GetCredentialResponse
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.graduate.work.sporterapp.core.Response
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.AuthWithGoogleUseCase
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.SignUpWithMailAndPasswordUseCase
-import com.graduate.work.sporterapp.features.login.core.AuthResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -71,10 +71,10 @@ class SignUpViewModel @Inject constructor(
         uiState = uiState.copy(isLoading = true)
     }
 
-    fun authWithGoogle(credentialAuthResponse: AuthResponse<GetCredentialResponse>) {
+    fun authWithGoogle(credentialResponse: Response<GetCredentialResponse>) {
         viewModelScope.launch {
-            uiState = when (val response = authWithGoogleUseCase(credentialAuthResponse)) {
-                is AuthResponse.Failure -> {
+            uiState = when (val response = authWithGoogleUseCase(credentialResponse)) {
+                is Response.Failure -> {
                     uiState.copy(
                         isLoading = false,
                         isGoogleAuthError = true,
@@ -82,7 +82,7 @@ class SignUpViewModel @Inject constructor(
                     )
                 }
 
-                is AuthResponse.Success -> {
+                is Response.Success -> {
                     uiState.copy(isLoading = false, shouldNavigateToHome = true)
                 }
             }
@@ -110,7 +110,7 @@ class SignUpViewModel @Inject constructor(
             uiState = uiState.copy(isLoading = true)
             val response = signUpWithMailAndPasswordUseCase(uiState.email, uiState.password)
             uiState = when (response) {
-                is AuthResponse.Failure -> {
+                is Response.Failure -> {
                     uiState.copy(
                         isLoading = false,
                         isEmailAndPasswordError = true,
@@ -118,7 +118,7 @@ class SignUpViewModel @Inject constructor(
                     )
                 }
 
-                is AuthResponse.Success -> {
+                is Response.Success -> {
                     uiState.copy(isLoading = false, shouldNavigateToEmailVerification = true)
                 }
             }
