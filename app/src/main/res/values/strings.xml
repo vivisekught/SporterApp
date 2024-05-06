@@ -41,4 +41,7 @@
     <string name="ok">OK</string>
     <string name="location_permission_required">Location permission required</string>
     <string name="to_ensure_the_app_works_properly_enable_location_permission">To ensure the app works properly, enable location permission</string>
+    <string name="remove_point">Remove point</string>
+    <string name="no_points_added_yet">No points added yet</string>
+    <string name="draggable_point">Draggable point</string>
 </resources>

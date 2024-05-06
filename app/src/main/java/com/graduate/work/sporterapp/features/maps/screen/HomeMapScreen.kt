@@ -50,9 +50,13 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.graduate.work.sporterapp.R
+import com.graduate.work.sporterapp.core.ext.getAlphabetLetterByIndex
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
+import com.graduate.work.sporterapp.domain.maps.mapbox.domain.MapPoint
+import com.graduate.work.sporterapp.features.maps.screen.HomeScreenConstants.NEW_POINT_DIALOG_ANIMATION_DURATION
 import com.graduate.work.sporterapp.features.maps.ui.AddPointAnnotation
 import com.graduate.work.sporterapp.features.maps.ui.NewPointDialog
+import com.graduate.work.sporterapp.features.maps.ui.points_list.PointsDraggableList
 import com.graduate.work.sporterapp.features.maps.utils.MapUtils
 import com.graduate.work.sporterapp.features.maps.utils.MapUtils.LAYER_ID
 import com.graduate.work.sporterapp.features.maps.utils.MapUtils.PITCH_OUTLINE
@@ -79,6 +83,10 @@ import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.scalebar.generated.ScaleBarSettings
 import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateOptions
+
+object HomeScreenConstants {
+    const val NEW_POINT_DIALOG_ANIMATION_DURATION = 250
+}
 
 @Composable
 fun HomeMapScreen() {
@@ -116,6 +124,14 @@ fun HomeMapScreen() {
             HomeMapScreenEvent.ResetRouteError -> {
                 viewModel.resetRouteError()
             }
+
+            is HomeMapScreenEvent.OnPointDeleteClick -> {
+                viewModel.deletePoint(event.index)
+            }
+
+            is HomeMapScreenEvent.OnPointIndexChanged -> {
+                viewModel.changePointByIndex(event.from, event.to)
+            }
         }
     }
 }
@@ -127,6 +143,8 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
     var shouldShowUserLocation by remember { mutableStateOf(true) }
     var shouldShowLocationDisableDialog by remember { mutableStateOf(false) }
     var showDropdownMenu by remember { mutableStateOf(false) }
+    var pointOnCameraFocus: MapPoint? by remember { mutableStateOf(null) }
+    var isUserPointsLazyListOpened by remember { mutableStateOf(false) }
     var polylineAnnotationManager: PolylineAnnotationManager? by remember { mutableStateOf(null) }
 
     val permissionRequest = rememberLauncherForActivityResult(
@@ -165,7 +183,7 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
 
     val attributionSettings: AttributionSettings by remember {
         mutableStateOf(AttributionSettings {
-            enabled = true
+            enabled = false
         })
     }
 
@@ -182,13 +200,14 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
     LaunchedEffect(uiState.route) {
         uiState.route?.let { route ->
             polylineAnnotationManager?.apply {
+                deleteAll()
                 val lineOptions = PolylineAnnotationOptions()
                     .withPoints(route)
                     .withLineColor(Color.RED)
                     .withLineWidth(5.0)
                 update(create(lineOptions))
             }
-        }
+        } ?: polylineAnnotationManager?.deleteAll()
     }
 
     LaunchedEffect(shouldShowUserLocation) {
@@ -220,9 +239,24 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
         }
     }
 
+    LaunchedEffect(pointOnCameraFocus) {
+        pointOnCameraFocus?.let {
+            mapViewportState.flyTo(
+                cameraOptions {
+                    center(it.point)
+                }
+            )
+        }
+    }
+
+    LaunchedEffect(uiState.userPoints.size) {
+        isUserPointsLazyListOpened = uiState.userPoints.size > 1
+    }
+
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
+        val (pointsListRef, mapRef, newPointDialogRef) = createRefs()
         MapboxMap(
-            modifier = Modifier.constrainAs(createRef()) {
+            modifier = Modifier.constrainAs(mapRef) {
                 width = Dimension.matchParent
                 height = Dimension.matchParent
             },
@@ -259,13 +293,37 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
                 }
             }
             uiState.lastSelectedPoint?.let {
-                AddPointAnnotation(context, (uiState.userPoints.size + 1).toString(), it)
+                AddPointAnnotation(
+                    context, (uiState.numOfAllUserPoints).getAlphabetLetterByIndex(), it
+                )
             }
-            uiState.userPoints.forEachIndexed { index, it ->
-                AddPointAnnotation(context, (index + 1).toString(), it) {
-                    onEvent(HomeMapScreenEvent.OnPointClicked(it))
+            uiState.userPoints.forEachIndexed { index, mapPoint ->
+                AddPointAnnotation(context, mapPoint.name, mapPoint.point) {
+                    onEvent(HomeMapScreenEvent.OnPointClicked(mapPoint))
                 }
             }
+        }
+        AnimatedVisibility(
+            visible = isUserPointsLazyListOpened,
+            modifier = Modifier.constrainAs(pointsListRef) {
+                top.linkTo(parent.top)
+                width = Dimension.matchParent
+            }) {
+            PointsDraggableList(
+                points = uiState.userPoints,
+                onMove = { from, to ->
+                    onEvent(HomeMapScreenEvent.OnPointIndexChanged(from, to))
+                },
+                onPointClick = {
+                    pointOnCameraFocus = uiState.userPoints[it]
+                },
+                onPointDeleteClick = {
+                    onEvent(HomeMapScreenEvent.OnPointDeleteClick(it))
+                },
+                onListClose = {
+                    isUserPointsLazyListOpened = false
+                }
+            )
         }
         AnimatedVisibility(
             visible = uiState.isRouteLoading,
@@ -282,19 +340,20 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
             LinearProgressIndicator()
         }
         AnimatedVisibility(
-            visible = uiState.lastSelectedPoint != null,
+            visible = uiState.isNewPointDialogOpened,
             modifier = Modifier
                 .padding(8.dp)
-                .constrainAs(createRef()) {
+                .constrainAs(newPointDialogRef) {
                     centerHorizontallyTo(parent)
                     bottom.linkTo(parent.bottom)
                     width = Dimension.fillToConstraints
                 },
             enter = slideInVertically(
-                initialOffsetY = { fullHeight -> fullHeight },
-                animationSpec = tween(durationMillis = 500)
+                animationSpec = tween(durationMillis = NEW_POINT_DIALOG_ANIMATION_DURATION),
+                initialOffsetY = { fullHeight -> fullHeight }
             ),
             exit = slideOutVertically(
+                animationSpec = tween(durationMillis = NEW_POINT_DIALOG_ANIMATION_DURATION),
                 targetOffsetY = { fullHeight -> fullHeight }
             )
         ) {
@@ -314,7 +373,7 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
                 .background(MaterialTheme.colorScheme.background)
                 .padding(8.dp)
                 .constrainAs(createRef()) {
-                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
                     end.linkTo(parent.end)
                 },
             verticalArrangement = Arrangement.spacedBy(4.dp)

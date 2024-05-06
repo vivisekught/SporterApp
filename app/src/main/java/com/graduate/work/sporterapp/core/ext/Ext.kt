@@ -31,3 +31,24 @@ fun String.getCoordinates(): List<Point> {
     val lineString = LineString.fromPolyline(this, Constants.PRECISION_6)
     return lineString.coordinates()
 }
+
+fun <T> MutableList<T>.move(from: Int, to: Int): MutableList<T> {
+    if (from == to)
+        return this
+
+    val element = this.removeAt(from) ?: return this
+    this.add(to, element)
+    return this
+}
+
+fun Int.getAlphabetLetterByIndex(): String {
+    return if (this in 0..25) {
+        ('A' + this).toString()
+    } else {
+        val letterIndex = this % 26
+        val numberIndex = this / 26
+        ('A' + letterIndex).toString() + (numberIndex + 1)
+    }
+}
+
+fun Double.roundTo6(): Double = Math.round(this * 1000000.0) / 1000000.0
