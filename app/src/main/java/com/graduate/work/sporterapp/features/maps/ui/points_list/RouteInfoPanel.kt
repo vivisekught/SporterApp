@@ -52,7 +52,7 @@ enum class ExpandState {
 }
 
 @Composable
-fun PointsDraggableList(
+fun RouteInfoPanel(
     modifier: Modifier = Modifier,
     points: List<MapPoint>? = null,
     onMove: (from: Int, to: Int) -> Unit,

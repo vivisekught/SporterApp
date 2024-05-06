@@ -6,6 +6,7 @@ import com.graduate.work.sporterapp.core.ext.getCoordinates
 import com.graduate.work.sporterapp.core.ext.toDirectionsString
 import com.graduate.work.sporterapp.di.maps.annotations.MapboxPublicToken
 import com.graduate.work.sporterapp.domain.maps.mapbox.MapboxDirectionsRepository
+import com.graduate.work.sporterapp.domain.maps.mapbox.domain.MapRoute
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.MapboxDirections
 import com.mapbox.api.directions.v5.models.DirectionsResponse
@@ -21,7 +22,7 @@ class MapboxDirectionsRepositoryImpl @Inject constructor(
     @MapboxPublicToken private val publicToken: String,
 ) : MapboxDirectionsRepository {
 
-    override suspend fun getRoute(coordinates: List<Point>): com.graduate.work.sporterapp.core.Response<List<Point>?> =
+    override suspend fun getRoute(coordinates: List<Point>): com.graduate.work.sporterapp.core.Response<MapRoute?> =
         suspendCoroutine { continuation ->
             val client = MapboxDirections.builder()
                 .accessToken(publicToken)
@@ -42,8 +43,18 @@ class MapboxDirectionsRepositoryImpl @Inject constructor(
                     }
                     if (response.isSuccessful) {
                         val route = response.body()?.routes()?.get(0)
+                        val distance = route?.distance() ?: 0.0
+                        val duration = route?.duration() ?: 0.0
+                        val polyline = route?.geometry()?.getCoordinates()
+                        val geometry = route?.geometry()
+                        val mapRoute = MapRoute(
+                            distance = distance,
+                            duration = duration,
+                            points = polyline,
+                            geometry = geometry
+                        )
                         route?.let {
-                            continuation.resume(Success(route.geometry()?.getCoordinates()))
+                            continuation.resume(Success(mapRoute))
                         } ?: kotlin.run {
                             continuation.resume(Failure("Response is not successful"))
                         }

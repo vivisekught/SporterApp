@@ -13,6 +13,7 @@ import com.graduate.work.sporterapp.core.map.LocationServiceResult
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
 import com.graduate.work.sporterapp.domain.maps.location.usecases.GetUserLocationUseCase
 import com.graduate.work.sporterapp.domain.maps.mapbox.domain.MapPoint
+import com.graduate.work.sporterapp.domain.maps.mapbox.domain.MapRoute
 import com.graduate.work.sporterapp.domain.maps.mapbox.usecases.GetRouteFromCoordinatesUseCase
 import com.graduate.work.sporterapp.features.maps.screen.HomeScreenConstants.NEW_POINT_DIALOG_ANIMATION_DURATION
 import com.mapbox.geojson.Point
@@ -21,25 +22,25 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class HomeMapState(
+data class MapState(
     val currentMapStyle: MapBoxStyle = MapBoxStyle.STREET,
     val userLocationPoint: Point? = null,
     val lastSelectedPoint: Point? = null,
     val numOfAllUserPoints: Int = 0,
     val userPoints: List<MapPoint> = emptyList(),
-    val route: List<Point>? = null,
+    val route: MapRoute? = null,
     val routeNotFoundError: Boolean = false,
     val isRouteLoading: Boolean = false,
     val isNewPointDialogOpened: Boolean = false,
 )
 
 @HiltViewModel
-class HomeMapViewModel @Inject constructor(
+class MapScreenViewModel @Inject constructor(
     private val getUserLocationUseCase: GetUserLocationUseCase,
     private val getRouteFromCoordinatesUseCase: GetRouteFromCoordinatesUseCase,
 ) : ViewModel() {
 
-    var state by mutableStateOf(HomeMapState())
+    var state by mutableStateOf(MapState())
         private set
 
     init {

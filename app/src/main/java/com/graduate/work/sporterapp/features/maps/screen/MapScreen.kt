@@ -5,7 +5,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
@@ -13,11 +12,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsIgnoringVisibility
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Layers
@@ -26,13 +29,16 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,22 +59,22 @@ import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.core.ext.getAlphabetLetterByIndex
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
 import com.graduate.work.sporterapp.domain.maps.mapbox.domain.MapPoint
-import com.graduate.work.sporterapp.features.maps.screen.HomeScreenConstants.NEW_POINT_DIALOG_ANIMATION_DURATION
 import com.graduate.work.sporterapp.features.maps.ui.AddPointAnnotation
-import com.graduate.work.sporterapp.features.maps.ui.NewPointDialog
-import com.graduate.work.sporterapp.features.maps.ui.points_list.PointsDraggableList
+import com.graduate.work.sporterapp.features.maps.ui.NewPointView
+import com.graduate.work.sporterapp.features.maps.ui.points_list.RouteInfoPanel
 import com.graduate.work.sporterapp.features.maps.utils.MapUtils
 import com.graduate.work.sporterapp.features.maps.utils.MapUtils.LAYER_ID
 import com.graduate.work.sporterapp.features.maps.utils.MapUtils.PITCH_OUTLINE
 import com.graduate.work.sporterapp.features.maps.utils.MapUtils.SOURCE_ID
-import com.graduate.work.sporterapp.features.maps.vm.HomeMapState
-import com.graduate.work.sporterapp.features.maps.vm.HomeMapViewModel
+import com.graduate.work.sporterapp.features.maps.vm.MapScreenViewModel
+import com.graduate.work.sporterapp.features.maps.vm.MapState
 import com.mapbox.geojson.Point
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
+import com.mapbox.maps.extension.compose.animation.viewport.MapViewportState
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import com.mapbox.maps.plugin.annotation.AnnotationConfig
@@ -89,63 +95,69 @@ object HomeScreenConstants {
 }
 
 @Composable
-fun HomeMapScreen() {
-    val viewModel: HomeMapViewModel = hiltViewModel<HomeMapViewModel>()
+fun MapScreen() {
+    val viewModel: MapScreenViewModel = hiltViewModel<MapScreenViewModel>()
     MapBoxMap(viewModel.state) { event ->
         when (event) {
-            HomeMapScreenEvent.SetLastPointAsDestination -> {
+            MapScreenEvent.SetLastPointAsDestination -> {
                 viewModel.setLastSelectedPointAsDestination()
             }
 
-            HomeMapScreenEvent.SetLastSelectedPointAsStart -> {
+            MapScreenEvent.SetLastSelectedPointAsStart -> {
                 viewModel.setLastSelectedPointAsStart()
             }
 
-            is HomeMapScreenEvent.ChangeLastSelectedPoint -> {
+            is MapScreenEvent.ChangeLastSelectedPoint -> {
                 viewModel.changeLastSelectedPoint(event.point)
             }
 
-            HomeMapScreenEvent.DeleteLastSelectedPoint -> {
+            MapScreenEvent.DeleteLastSelectedPoint -> {
                 viewModel.deleteLastSelectedPoint()
             }
 
-            HomeMapScreenEvent.SetUserLocationAsStart -> {
+            MapScreenEvent.SetUserLocationAsStart -> {
                 viewModel.setUserLocationAsStart()
             }
 
-            is HomeMapScreenEvent.OnPointClicked -> {
+            is MapScreenEvent.OnPointClicked -> {
                 TODO("Not yet implemented")
             }
 
-            is HomeMapScreenEvent.ChangeMapStyle -> {
+            is MapScreenEvent.ChangeMapStyle -> {
                 viewModel.changeMapStyle(event.style)
             }
 
-            HomeMapScreenEvent.ResetRouteError -> {
+            MapScreenEvent.ResetRouteError -> {
                 viewModel.resetRouteError()
             }
 
-            is HomeMapScreenEvent.OnPointDeleteClick -> {
+            is MapScreenEvent.OnPointDeleteClick -> {
                 viewModel.deletePoint(event.index)
             }
 
-            is HomeMapScreenEvent.OnPointIndexChanged -> {
+            is MapScreenEvent.OnPointIndexChanged -> {
                 viewModel.changePointByIndex(event.from, event.to)
             }
         }
     }
 }
 
-@OptIn(MapboxExperimental::class)
+enum class UserPointsListState {
+    NOT_OPENED_YET, OPENED, CLOSED;
+
+    fun isOpened() = this == OPENED
+}
+
+@OptIn(MapboxExperimental::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
+fun MapBoxMap(uiState: MapState, onEvent: (MapScreenEvent) -> Unit) {
     val context = LocalContext.current
-    var shouldShowUserLocation by remember { mutableStateOf(true) }
+    var polylineAnnotationManager: PolylineAnnotationManager? by remember { mutableStateOf(null) }
     var shouldShowLocationDisableDialog by remember { mutableStateOf(false) }
     var showDropdownMenu by remember { mutableStateOf(false) }
     var pointOnCameraFocus: MapPoint? by remember { mutableStateOf(null) }
-    var isUserPointsLazyListOpened by remember { mutableStateOf(false) }
-    var polylineAnnotationManager: PolylineAnnotationManager? by remember { mutableStateOf(null) }
+    var userPointsListOpenedState by remember { mutableStateOf(UserPointsListState.NOT_OPENED_YET) }
+    val newPointSheetState = rememberModalBottomSheetState()
 
     val permissionRequest = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
@@ -193,7 +205,9 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
         })
     }
 
+
     LaunchedEffect(Unit) {
+        mapViewportState.flyToUserPosition()
         permissionRequest.launch(MapUtils.locationPermissions)
     }
 
@@ -202,24 +216,12 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
             polylineAnnotationManager?.apply {
                 deleteAll()
                 val lineOptions = PolylineAnnotationOptions()
-                    .withPoints(route)
+                    .withPoints(route.points ?: listOf())
                     .withLineColor(Color.RED)
                     .withLineWidth(5.0)
                 update(create(lineOptions))
             }
         } ?: polylineAnnotationManager?.deleteAll()
-    }
-
-    LaunchedEffect(shouldShowUserLocation) {
-        if (shouldShowUserLocation) {
-            mapViewportState.transitionToFollowPuckState(
-                followPuckViewportStateOptions = FollowPuckViewportStateOptions.Builder()
-                    .pitch(null)
-                    .build(),
-            ) {
-                shouldShowUserLocation = false
-            }
-        }
     }
 
     LaunchedEffect(uiState.lastSelectedPoint) {
@@ -235,7 +237,7 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
     LaunchedEffect(uiState.routeNotFoundError) {
         if (uiState.routeNotFoundError) {
             Toast.makeText(context, "Route not found", Toast.LENGTH_SHORT).show()
-            onEvent(HomeMapScreenEvent.ResetRouteError)
+            onEvent(MapScreenEvent.ResetRouteError)
         }
     }
 
@@ -250,7 +252,9 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
     }
 
     LaunchedEffect(uiState.userPoints.size) {
-        isUserPointsLazyListOpened = uiState.userPoints.size > 1
+        if (userPointsListOpenedState == UserPointsListState.NOT_OPENED_YET && uiState.userPoints.size > 1) {
+            userPointsListOpenedState = UserPointsListState.OPENED
+        }
     }
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
@@ -272,7 +276,7 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
             gesturesSettings = mapBoxUiSettings,
             attributionSettings = attributionSettings,
             onMapLongClickListener = { point ->
-                onEvent(HomeMapScreenEvent.ChangeLastSelectedPoint(point))
+                onEvent(MapScreenEvent.ChangeLastSelectedPoint(point))
                 true
             }
         ) {
@@ -299,29 +303,29 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
             }
             uiState.userPoints.forEachIndexed { index, mapPoint ->
                 AddPointAnnotation(context, mapPoint.name, mapPoint.point) {
-                    onEvent(HomeMapScreenEvent.OnPointClicked(mapPoint))
+                    onEvent(MapScreenEvent.OnPointClicked(mapPoint))
                 }
             }
         }
         AnimatedVisibility(
-            visible = isUserPointsLazyListOpened,
+            visible = userPointsListOpenedState.isOpened(),
             modifier = Modifier.constrainAs(pointsListRef) {
                 top.linkTo(parent.top)
                 width = Dimension.matchParent
             }) {
-            PointsDraggableList(
+            RouteInfoPanel(
                 points = uiState.userPoints,
                 onMove = { from, to ->
-                    onEvent(HomeMapScreenEvent.OnPointIndexChanged(from, to))
+                    onEvent(MapScreenEvent.OnPointIndexChanged(from, to))
                 },
                 onPointClick = {
                     pointOnCameraFocus = uiState.userPoints[it]
                 },
                 onPointDeleteClick = {
-                    onEvent(HomeMapScreenEvent.OnPointDeleteClick(it))
+                    onEvent(MapScreenEvent.OnPointDeleteClick(it))
                 },
                 onListClose = {
-                    isUserPointsLazyListOpened = false
+                    userPointsListOpenedState = UserPointsListState.CLOSED
                 }
             )
         }
@@ -338,34 +342,6 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
             exit = slideOutVertically()
         ) {
             LinearProgressIndicator()
-        }
-        AnimatedVisibility(
-            visible = uiState.isNewPointDialogOpened,
-            modifier = Modifier
-                .padding(8.dp)
-                .constrainAs(newPointDialogRef) {
-                    centerHorizontallyTo(parent)
-                    bottom.linkTo(parent.bottom)
-                    width = Dimension.fillToConstraints
-                },
-            enter = slideInVertically(
-                animationSpec = tween(durationMillis = NEW_POINT_DIALOG_ANIMATION_DURATION),
-                initialOffsetY = { fullHeight -> fullHeight }
-            ),
-            exit = slideOutVertically(
-                animationSpec = tween(durationMillis = NEW_POINT_DIALOG_ANIMATION_DURATION),
-                targetOffsetY = { fullHeight -> fullHeight }
-            )
-        ) {
-            NewPointDialog(
-                latitude = uiState.lastSelectedPoint?.latitude(),
-                longitude = uiState.lastSelectedPoint?.longitude(),
-                isSetAsDestinationBtnVisible = uiState.userPoints.isEmpty() && uiState.userLocationPoint != null,
-                deleteLastSelectedPoint = { onEvent(HomeMapScreenEvent.DeleteLastSelectedPoint) },
-                setUserLocationAsStart = { onEvent(HomeMapScreenEvent.SetUserLocationAsStart) },
-                setLastPointAsDestination = { onEvent(HomeMapScreenEvent.SetLastPointAsDestination) },
-                setLastSelectedPointAsStart = { onEvent(HomeMapScreenEvent.SetLastSelectedPointAsStart) }
-            )
         }
         Column(
             modifier = Modifier
@@ -401,18 +377,41 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
                                     Text(text = stringResource(id = it.textId))
                                 }
                             }, onClick = {
-                                onEvent(HomeMapScreenEvent.ChangeMapStyle(it))
+                                onEvent(MapScreenEvent.ChangeMapStyle(it))
                                 showDropdownMenu = false
                             })
                         HorizontalDivider()
                     }
                 }
             }
-
-            IconButton(onClick = { shouldShowUserLocation = true }) {
+            IconButton(onClick = {
+                mapViewportState.flyToUserPosition()
+            }) {
                 Icon(
                     Icons.Default.MyLocation,
                     contentDescription = stringResource(R.string.my_location)
+                )
+            }
+        }
+        if (uiState.isNewPointDialogOpened) {
+            ModalBottomSheet(
+                sheetState = newPointSheetState,
+                onDismissRequest = {
+                    onEvent(MapScreenEvent.DeleteLastSelectedPoint)
+                },
+            ) {
+                NewPointView(
+                    latitude = uiState.lastSelectedPoint?.latitude(),
+                    longitude = uiState.lastSelectedPoint?.longitude(),
+                    isSetAsDestinationBtnVisible = uiState.userPoints.isEmpty() && uiState.userLocationPoint != null,
+                    setUserLocationAsStart = { onEvent(MapScreenEvent.SetUserLocationAsStart) },
+                    setLastPointAsDestination = { onEvent(MapScreenEvent.SetLastPointAsDestination) },
+                    setLastSelectedPointAsStart = { onEvent(MapScreenEvent.SetLastSelectedPointAsStart) }
+                )
+                Spacer(
+                    Modifier.windowInsetsBottomHeight(
+                        WindowInsets.navigationBarsIgnoringVisibility
+                    )
                 )
             }
         }
@@ -445,4 +444,13 @@ fun MapBoxMap(uiState: HomeMapState, onEvent: (HomeMapScreenEvent) -> Unit) {
             }
         )
     }
+}
+
+@OptIn(MapboxExperimental::class)
+fun MapViewportState.flyToUserPosition() {
+    transitionToFollowPuckState(
+        followPuckViewportStateOptions = FollowPuckViewportStateOptions.Builder()
+            .pitch(null)
+            .build(),
+    )
 }
