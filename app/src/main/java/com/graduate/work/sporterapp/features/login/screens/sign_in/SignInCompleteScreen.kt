@@ -21,6 +21,10 @@ fun SignInCompleteScreen(email: String?, navController: NavController) {
             }
 
             SignInScreenEvent.NavigateToHomeScreen -> {
+                navController.navigate(AppNavigation.Home.HOME_FEATURE_SCREEN_ROUTE,
+                    navOptions = navOptions {
+                        popUpTo(AppNavigation.Auth.SignInScreen.route) { inclusive = true }
+                    })
             }
 
             SignInScreenEvent.NavigateToEmailVerificationScreen -> {

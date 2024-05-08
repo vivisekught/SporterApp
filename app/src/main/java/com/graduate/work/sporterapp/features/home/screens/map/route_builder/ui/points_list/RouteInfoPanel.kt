@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.features.maps.ui.points_list
+package com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.points_list
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -34,12 +34,14 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.domain.maps.mapbox.domain.MapPoint
-import com.graduate.work.sporterapp.features.maps.ui.points_list.PointConstants.POINT_HEIGHT
+import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.points_list.PointConstants.POINT_HEIGHT
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -66,7 +68,9 @@ fun RouteInfoPanel(
     var listExpandedState by remember { mutableStateOf(ExpandState.EXPANDED) }
 
     LaunchedEffect(points, listExpandedState) {
-        points?.lastIndex?.let { dragDropListState.lazyListState.animateScrollToItem(it) }
+        points?.lastIndex?.let {
+            if (it > 0) dragDropListState.lazyListState.animateScrollToItem(it)
+        }
     }
     AnimatedContent(
         targetState = listExpandedState,
@@ -86,17 +90,24 @@ fun RouteInfoPanel(
                             }
                         }
                     }
-        }, label = ""
+        }, label = "RouteInfoPanel"
     ) { targetExpanded ->
         Card(modifier = modifier) {
             ConstraintLayout {
-                val (pointsListRef, expandButtonRef, closeButtonRef) = createRefs()
+                val (
+                    pointsListRef,
+                    expandButtonRef,
+                    closeButtonRef,
+                ) = createRefs()
                 if (points.isNullOrEmpty()) {
                     Text(
                         text = stringResource(R.string.no_points_added_yet),
+                        textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.constrainAs(createRef()) {
-                            centerTo(parent)
+                        modifier = Modifier.constrainAs(pointsListRef) {
+                            top.linkTo(parent.top, margin = 4.dp)
+                            bottom.linkTo(closeButtonRef.top, margin = 4.dp)
+                            width = Dimension.matchParent
                         }
                     )
                 } else {
@@ -104,7 +115,7 @@ fun RouteInfoPanel(
                         modifier = Modifier
                             .constrainAs(pointsListRef) {
                                 top.linkTo(parent.top, margin = 4.dp)
-                                bottom.linkTo(expandButtonRef.top)
+                                bottom.linkTo(closeButtonRef.top)
                             }
                             .heightIn(min = POINT_HEIGHT.dp, max = POINT_HEIGHT.dp * 5)
                             .pointerInput(Unit) {
@@ -154,21 +165,32 @@ fun RouteInfoPanel(
                                         translationY = offsetOrNull ?: 0f
                                     }
                                 },
-                                onPointClick = { onPointClick(index) },
-                                onDeletePointClick = { onPointDeleteClick(index) })
+                                onPointClick = {
+                                    val currentIndex =
+                                        if (targetExpanded == ExpandState.EXPANDED) index else points.lastIndex
+                                    onPointClick(currentIndex)
+                                },
+                                onDeletePointClick = {
+                                    val currentIndex =
+                                        if (targetExpanded == ExpandState.EXPANDED) index else points.lastIndex
+                                    onPointDeleteClick(currentIndex)
+                                }
+                            )
                         }
                     }
                 }
-                IconButton(onClick = {
-                    listExpandedState = listExpandedState.next()
-                }, Modifier.constrainAs(expandButtonRef) {
-                    start.linkTo(parent.start, 4.dp)
-                    bottom.linkTo(parent.bottom, 4.dp)
-                }) {
-                    Icon(
-                        imageVector = if (listExpandedState == ExpandState.EXPANDED) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                        contentDescription = if (listExpandedState == ExpandState.EXPANDED) "Collapse" else "Expand"
-                    )
+                if ((points?.size ?: 0) > 1) {
+                    IconButton(onClick = {
+                        listExpandedState = listExpandedState.next()
+                    }, Modifier.constrainAs(expandButtonRef) {
+                        start.linkTo(parent.start, 4.dp)
+                        bottom.linkTo(parent.bottom, 4.dp)
+                    }) {
+                        Icon(
+                            imageVector = if (listExpandedState == ExpandState.EXPANDED) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                            contentDescription = if (listExpandedState == ExpandState.EXPANDED) "Collapse" else "Expand"
+                        )
+                    }
                 }
                 IconButton(onClick = onListClose, Modifier.constrainAs(closeButtonRef) {
                     end.linkTo(parent.end, 4.dp)

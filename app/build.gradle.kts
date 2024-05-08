@@ -116,8 +116,16 @@ dependencies {
     implementation(libs.mapbox.sdk.services)
     implementation(libs.maps.compose)
 
+    // splash screen
+    implementation(libs.androidx.core.splashscreen)
+
 
     // google location services
     implementation(libs.play.services.location)
+
+    implementation(libs.android.gpx.parser)
+
+
+
 
 }

@@ -1,6 +1,6 @@
-package com.graduate.work.sporterapp.features.maps.screen
+package com.graduate.work.sporterapp.features.home.screens.map.route_builder.screen
 
-import android.graphics.Color
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,11 +22,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MyLocation
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,7 +34,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -51,91 +48,103 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.constraintlayout.compose.atMost
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.core.ext.getAlphabetLetterByIndex
+import com.graduate.work.sporterapp.core.ext.metersToKms
+import com.graduate.work.sporterapp.core.ext.parseSeconds
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
-import com.graduate.work.sporterapp.domain.maps.mapbox.domain.MapPoint
-import com.graduate.work.sporterapp.features.maps.ui.AddPointAnnotation
-import com.graduate.work.sporterapp.features.maps.ui.NewPointView
-import com.graduate.work.sporterapp.features.maps.ui.points_list.RouteInfoPanel
-import com.graduate.work.sporterapp.features.maps.utils.MapUtils
-import com.graduate.work.sporterapp.features.maps.utils.MapUtils.LAYER_ID
-import com.graduate.work.sporterapp.features.maps.utils.MapUtils.PITCH_OUTLINE
-import com.graduate.work.sporterapp.features.maps.utils.MapUtils.SOURCE_ID
-import com.graduate.work.sporterapp.features.maps.vm.MapScreenViewModel
-import com.graduate.work.sporterapp.features.maps.vm.MapState
+import com.graduate.work.sporterapp.features.home.ScaffoldScreensState
+import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.AddPointAnnotation
+import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.NewPointView
+import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.points_list.RouteInfoPanel
+import com.graduate.work.sporterapp.features.home.screens.map.route_builder.vm.RouteBuilderScreenViewModel
+import com.graduate.work.sporterapp.features.home.screens.map.route_builder.vm.RouteBuilderState
+import com.graduate.work.sporterapp.features.home.screens.map.ui.LocationDisableAlertDialog
+import com.graduate.work.sporterapp.features.home.screens.map.utils.MapUtils
+import com.graduate.work.sporterapp.features.home.screens.map.utils.MapUtils.flyToUserPosition
 import com.mapbox.geojson.Point
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
-import com.mapbox.maps.extension.compose.animation.viewport.MapViewportState
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
+import com.mapbox.maps.extension.compose.annotation.generated.PolylineAnnotationGroup
+import com.mapbox.maps.extension.style.layers.properties.generated.LineCap
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
-import com.mapbox.maps.plugin.annotation.AnnotationConfig
-import com.mapbox.maps.plugin.annotation.annotations
-import com.mapbox.maps.plugin.annotation.generated.PolylineAnnotationManager
 import com.mapbox.maps.plugin.annotation.generated.PolylineAnnotationOptions
-import com.mapbox.maps.plugin.annotation.generated.createPolylineAnnotationManager
 import com.mapbox.maps.plugin.attribution.generated.AttributionSettings
 import com.mapbox.maps.plugin.compass.generated.CompassSettings
 import com.mapbox.maps.plugin.gestures.generated.GesturesSettings
 import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.scalebar.generated.ScaleBarSettings
-import com.mapbox.maps.plugin.viewport.data.FollowPuckViewportStateOptions
-
-object HomeScreenConstants {
-    const val NEW_POINT_DIALOG_ANIMATION_DURATION = 250
-}
 
 @Composable
-fun MapScreen() {
-    val viewModel: MapScreenViewModel = hiltViewModel<MapScreenViewModel>()
-    MapBoxMap(viewModel.state) { event ->
+fun RouteBuilderCompleteScreen(
+    onScreenStateChange: (ScaffoldScreensState) -> Unit,
+) {
+    val viewModel: RouteBuilderScreenViewModel = hiltViewModel<RouteBuilderScreenViewModel>()
+    LaunchedEffect(Unit) {
+        onScreenStateChange(ScaffoldScreensState(
+            screenNameId = R.string.home,
+            actions = {
+                IconButton(onClick = { Log.d("AAAAAA", "AAAAAA") }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = stringResource(
+                            R.string.more
+                        )
+                    )
+                }
+            }
+        ))
+    }
+    RouteBuilderScreen(viewModel.state) { event ->
         when (event) {
-            MapScreenEvent.SetLastPointAsDestination -> {
+            RouteBuilderScreenEvent.SetLastPointAsDestination -> {
                 viewModel.setLastSelectedPointAsDestination()
             }
 
-            MapScreenEvent.SetLastSelectedPointAsStart -> {
+            RouteBuilderScreenEvent.SetLastSelectedPointAsStart -> {
                 viewModel.setLastSelectedPointAsStart()
             }
 
-            is MapScreenEvent.ChangeLastSelectedPoint -> {
+            is RouteBuilderScreenEvent.ChangeLastSelectedPoint -> {
                 viewModel.changeLastSelectedPoint(event.point)
             }
 
-            MapScreenEvent.DeleteLastSelectedPoint -> {
+            RouteBuilderScreenEvent.DeleteLastSelectedPoint -> {
                 viewModel.deleteLastSelectedPoint()
             }
 
-            MapScreenEvent.SetUserLocationAsStart -> {
+            RouteBuilderScreenEvent.SetUserLocationAsStart -> {
                 viewModel.setUserLocationAsStart()
             }
 
-            is MapScreenEvent.OnPointClicked -> {
+            is RouteBuilderScreenEvent.OnPointClicked -> {
                 TODO("Not yet implemented")
             }
 
-            is MapScreenEvent.ChangeMapStyle -> {
+            is RouteBuilderScreenEvent.ChangeRouteBuilderStyle -> {
                 viewModel.changeMapStyle(event.style)
             }
 
-            MapScreenEvent.ResetRouteError -> {
+            RouteBuilderScreenEvent.ResetRouteError -> {
                 viewModel.resetRouteError()
             }
 
-            is MapScreenEvent.OnPointDeleteClick -> {
+            is RouteBuilderScreenEvent.OnPointDeleteClick -> {
                 viewModel.deletePoint(event.index)
             }
 
-            is MapScreenEvent.OnPointIndexChanged -> {
+            is RouteBuilderScreenEvent.OnPointIndexChanged -> {
                 viewModel.changePointByIndex(event.from, event.to)
             }
         }
@@ -150,23 +159,12 @@ enum class UserPointsListState {
 
 @OptIn(MapboxExperimental::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun MapBoxMap(uiState: MapState, onEvent: (MapScreenEvent) -> Unit) {
+fun RouteBuilderScreen(uiState: RouteBuilderState, onEvent: (RouteBuilderScreenEvent) -> Unit) {
     val context = LocalContext.current
-    var polylineAnnotationManager: PolylineAnnotationManager? by remember { mutableStateOf(null) }
     var shouldShowLocationDisableDialog by remember { mutableStateOf(false) }
     var showDropdownMenu by remember { mutableStateOf(false) }
-    var pointOnCameraFocus: MapPoint? by remember { mutableStateOf(null) }
     var userPointsListOpenedState by remember { mutableStateOf(UserPointsListState.NOT_OPENED_YET) }
     val newPointSheetState = rememberModalBottomSheetState()
-
-    val permissionRequest = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions(),
-        onResult = { permissions ->
-            if (!permissions.values.all { it }) {
-                shouldShowLocationDisableDialog = true
-            }
-        }
-    )
 
     val mapViewportState = rememberMapViewportState {
         setCameraOptions {
@@ -178,6 +176,17 @@ fun MapBoxMap(uiState: MapState, onEvent: (MapScreenEvent) -> Unit) {
             duration(3000)
         }
     }
+
+    val permissionRequest = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            if (!permissions.values.all { it }) {
+                shouldShowLocationDisableDialog = true
+            } else {
+                mapViewportState.flyToUserPosition()
+            }
+        }
+    )
 
     val mapBoxUiSettings: GesturesSettings by remember {
         mutableStateOf(GesturesSettings {
@@ -205,23 +214,8 @@ fun MapBoxMap(uiState: MapState, onEvent: (MapScreenEvent) -> Unit) {
         })
     }
 
-
     LaunchedEffect(Unit) {
-        mapViewportState.flyToUserPosition()
         permissionRequest.launch(MapUtils.locationPermissions)
-    }
-
-    LaunchedEffect(uiState.route) {
-        uiState.route?.let { route ->
-            polylineAnnotationManager?.apply {
-                deleteAll()
-                val lineOptions = PolylineAnnotationOptions()
-                    .withPoints(route.points ?: listOf())
-                    .withLineColor(Color.RED)
-                    .withLineWidth(5.0)
-                update(create(lineOptions))
-            }
-        } ?: polylineAnnotationManager?.deleteAll()
     }
 
     LaunchedEffect(uiState.lastSelectedPoint) {
@@ -237,17 +231,7 @@ fun MapBoxMap(uiState: MapState, onEvent: (MapScreenEvent) -> Unit) {
     LaunchedEffect(uiState.routeNotFoundError) {
         if (uiState.routeNotFoundError) {
             Toast.makeText(context, "Route not found", Toast.LENGTH_SHORT).show()
-            onEvent(MapScreenEvent.ResetRouteError)
-        }
-    }
-
-    LaunchedEffect(pointOnCameraFocus) {
-        pointOnCameraFocus?.let {
-            mapViewportState.flyTo(
-                cameraOptions {
-                    center(it.point)
-                }
-            )
+            onEvent(RouteBuilderScreenEvent.ResetRouteError)
         }
     }
 
@@ -256,9 +240,8 @@ fun MapBoxMap(uiState: MapState, onEvent: (MapScreenEvent) -> Unit) {
             userPointsListOpenedState = UserPointsListState.OPENED
         }
     }
-
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-        val (pointsListRef, mapRef, newPointDialogRef) = createRefs()
+        val (pointsListRef, mapRef, routeInfoRef) = createRefs()
         MapboxMap(
             modifier = Modifier.constrainAs(mapRef) {
                 width = Dimension.matchParent
@@ -275,16 +258,17 @@ fun MapBoxMap(uiState: MapState, onEvent: (MapScreenEvent) -> Unit) {
             scaleBarSettings = scaleBarSetting,
             gesturesSettings = mapBoxUiSettings,
             attributionSettings = attributionSettings,
+            onMapClickListener = {
+                Log.d("AAAAAA", "onMapClick")
+                true
+            },
             onMapLongClickListener = { point ->
-                onEvent(MapScreenEvent.ChangeLastSelectedPoint(point))
+                onEvent(RouteBuilderScreenEvent.ChangeLastSelectedPoint(point))
                 true
             }
         ) {
             MapEffect(Unit) { mapView ->
                 with(mapView) {
-                    polylineAnnotationManager = annotations.createPolylineAnnotationManager(
-                        annotationConfig = AnnotationConfig(PITCH_OUTLINE, LAYER_ID, SOURCE_ID)
-                    )
                     location.locationPuck = createDefault2DPuck(withBearing = true)
                     location.enabled = true
                 }
@@ -296,14 +280,34 @@ fun MapBoxMap(uiState: MapState, onEvent: (MapScreenEvent) -> Unit) {
                     }
                 }
             }
+            uiState.route?.points?.let {
+                PolylineAnnotationGroup(
+                    annotations = listOf(
+                        PolylineAnnotationOptions()
+                            .withPoints(points = it)
+                            .withLineBorderWidth(1.0)
+                            .withLineBorderColor(context.getColor(R.color.yellow))
+                            .withLineWidth(5.0)
+                            .withLineColor(context.getColor(R.color.light_red))
+                    ),
+                    lineCap = LineCap.ROUND,
+                    onClick = { polylineAnnotation ->
+                        Log.d("AAAAAA", "OnPolylineClick")
+                        true
+                    })
+            }
             uiState.lastSelectedPoint?.let {
                 AddPointAnnotation(
-                    context, (uiState.numOfAllUserPoints).getAlphabetLetterByIndex(), it
+                    context, (uiState.pointAlphabetIndex).getAlphabetLetterByIndex(), it
                 )
             }
-            uiState.userPoints.forEachIndexed { index, mapPoint ->
-                AddPointAnnotation(context, mapPoint.name, mapPoint.point) {
-                    onEvent(MapScreenEvent.OnPointClicked(mapPoint))
+            uiState.userPoints.forEach { point ->
+                AddPointAnnotation(
+                    context,
+                    point.name,
+                    point.point
+                ) {
+
                 }
             }
         }
@@ -316,13 +320,19 @@ fun MapBoxMap(uiState: MapState, onEvent: (MapScreenEvent) -> Unit) {
             RouteInfoPanel(
                 points = uiState.userPoints,
                 onMove = { from, to ->
-                    onEvent(MapScreenEvent.OnPointIndexChanged(from, to))
+                    onEvent(RouteBuilderScreenEvent.OnPointIndexChanged(from, to))
                 },
                 onPointClick = {
-                    pointOnCameraFocus = uiState.userPoints[it]
+                    uiState.userPoints[it].let {
+                        mapViewportState.flyTo(
+                            cameraOptions {
+                                center(it.point)
+                            }
+                        )
+                    }
                 },
                 onPointDeleteClick = {
-                    onEvent(MapScreenEvent.OnPointDeleteClick(it))
+                    onEvent(RouteBuilderScreenEvent.OnPointDeleteClick(it))
                 },
                 onListClose = {
                     userPointsListOpenedState = UserPointsListState.CLOSED
@@ -343,13 +353,58 @@ fun MapBoxMap(uiState: MapState, onEvent: (MapScreenEvent) -> Unit) {
         ) {
             LinearProgressIndicator()
         }
+        Row(
+            modifier = Modifier
+                .constrainAs(routeInfoRef) {
+                    bottom.linkTo(parent.bottom)
+                    width = Dimension.matchParent
+                    height = Dimension.preferredWrapContent.atMost(36.dp)
+                }
+                .background(color = MaterialTheme.colorScheme.surface.copy(0.75f))
+                .padding(start = 8.dp, end = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Absolute.Center
+        ) {
+            uiState.route?.let {
+                Row(
+                    Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Absolute.Center
+                ) {
+                    Icon(
+                        painterResource(id = R.drawable.ic_double_arrow),
+                        contentDescription = "Distance",
+                        tint = androidx.compose.ui.graphics.Color.Unspecified,
+                        modifier = Modifier.padding(4.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        it.distance.metersToKms().toString() + " km",
+                        textAlign = TextAlign.Center
+                    )
+                }
+                Row(
+                    Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Absolute.Center
+                ) {
+                    Icon(
+                        painterResource(id = R.drawable.ic_timer),
+                        contentDescription = "Time",
+                        tint = androidx.compose.ui.graphics.Color.Unspecified,
+                        modifier = Modifier.padding(4.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(it.duration.parseSeconds(), textAlign = TextAlign.Center)
+                }
+            }
+        }
         Column(
             modifier = Modifier
                 .alpha(0.7f)
                 .background(MaterialTheme.colorScheme.background)
                 .padding(8.dp)
                 .constrainAs(createRef()) {
-                    bottom.linkTo(parent.bottom)
+                    bottom.linkTo(routeInfoRef.top)
                     end.linkTo(parent.end)
                 },
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -377,7 +432,7 @@ fun MapBoxMap(uiState: MapState, onEvent: (MapScreenEvent) -> Unit) {
                                     Text(text = stringResource(id = it.textId))
                                 }
                             }, onClick = {
-                                onEvent(MapScreenEvent.ChangeMapStyle(it))
+                                onEvent(RouteBuilderScreenEvent.ChangeRouteBuilderStyle(it))
                                 showDropdownMenu = false
                             })
                         HorizontalDivider()
@@ -397,16 +452,16 @@ fun MapBoxMap(uiState: MapState, onEvent: (MapScreenEvent) -> Unit) {
             ModalBottomSheet(
                 sheetState = newPointSheetState,
                 onDismissRequest = {
-                    onEvent(MapScreenEvent.DeleteLastSelectedPoint)
+                    onEvent(RouteBuilderScreenEvent.DeleteLastSelectedPoint)
                 },
             ) {
                 NewPointView(
                     latitude = uiState.lastSelectedPoint?.latitude(),
                     longitude = uiState.lastSelectedPoint?.longitude(),
                     isSetAsDestinationBtnVisible = uiState.userPoints.isEmpty() && uiState.userLocationPoint != null,
-                    setUserLocationAsStart = { onEvent(MapScreenEvent.SetUserLocationAsStart) },
-                    setLastPointAsDestination = { onEvent(MapScreenEvent.SetLastPointAsDestination) },
-                    setLastSelectedPointAsStart = { onEvent(MapScreenEvent.SetLastSelectedPointAsStart) }
+                    setUserLocationAsStart = { onEvent(RouteBuilderScreenEvent.SetUserLocationAsStart) },
+                    setLastPointAsDestination = { onEvent(RouteBuilderScreenEvent.SetLastPointAsDestination) },
+                    setLastSelectedPointAsStart = { onEvent(RouteBuilderScreenEvent.SetLastSelectedPointAsStart) }
                 )
                 Spacer(
                     Modifier.windowInsetsBottomHeight(
@@ -418,39 +473,12 @@ fun MapBoxMap(uiState: MapState, onEvent: (MapScreenEvent) -> Unit) {
     }
 
     if (shouldShowLocationDisableDialog) {
-        AlertDialog(
-            icon = {
-                Icon(Icons.Default.Info, stringResource(R.string.info))
-            },
-            onDismissRequest = { shouldShowLocationDisableDialog = false },
-            title = {
-                Text(text = stringResource(R.string.location_permission_required))
-            },
-            text = {
-                Text(text = stringResource(R.string.to_ensure_the_app_works_properly_enable_location_permission))
-            },
-            confirmButton = {
-                Button(onClick = {
-                    shouldShowLocationDisableDialog = false
-                    permissionRequest.launch(MapUtils.locationPermissions)
-                }) {
-                    Text(stringResource(R.string.ok))
-                }
-            },
-            dismissButton = {
-                OutlinedButton(onClick = { shouldShowLocationDisableDialog = false }) {
-                    Text(stringResource(R.string.cancel))
-                }
+        LocationDisableAlertDialog(
+            onDialogDismiss = { shouldShowLocationDisableDialog = false },
+            onRequestLocation = {
+                shouldShowLocationDisableDialog = false
+                permissionRequest.launch(MapUtils.locationPermissions)
             }
         )
     }
-}
-
-@OptIn(MapboxExperimental::class)
-fun MapViewportState.flyToUserPosition() {
-    transitionToFollowPuckState(
-        followPuckViewportStateOptions = FollowPuckViewportStateOptions.Builder()
-            .pitch(null)
-            .build(),
-    )
 }

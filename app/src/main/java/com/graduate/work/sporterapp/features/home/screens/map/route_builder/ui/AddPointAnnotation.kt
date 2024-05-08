@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.features.maps.ui
+package com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui
 
 import android.content.Context
 import android.graphics.Bitmap

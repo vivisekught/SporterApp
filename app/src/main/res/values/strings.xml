@@ -44,4 +44,11 @@
     <string name="remove_point">Remove point</string>
     <string name="no_points_added_yet">No points added yet</string>
     <string name="draggable_point">Draggable point</string>
+    <string name="home">Home</string>
+    <string name="saved_routes">Routes</string>
+    <string name="add_route">Add route</string>
+    <string name="points">Points</string>
+    <string name="more">More</string>
+    <string name="build_route">Build route</string>
+    <string name="profile">Profile</string>
 </resources>

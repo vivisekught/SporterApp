@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.features.maps.ui
+package com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row

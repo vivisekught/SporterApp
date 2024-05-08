@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.navOptions
 import com.graduate.work.sporterapp.features.login.screens.sign_up.screen.SignUpScreen
 import com.graduate.work.sporterapp.features.login.screens.sign_up.screen.SignUpScreenEvent
 import com.graduate.work.sporterapp.features.login.screens.sign_up.vm.SignUpViewModel
@@ -33,7 +34,10 @@ fun SignUpCompleteScreen(navController: NavController) {
             }
 
             SignUpScreenEvent.NavigateToHome -> {
-                // TODO: navigate to home
+                navController.navigate(AppNavigation.Home.HOME_FEATURE_SCREEN_ROUTE,
+                    navOptions = navOptions {
+                        popUpTo(AppNavigation.Auth.SignUpScreen.route) { inclusive = true }
+                    })
             }
 
             SignUpScreenEvent.NavigateToSignIn ->

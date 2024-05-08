@@ -6,5 +6,6 @@ data class MapRoute(
     val points: List<Point>? = null,
     val distance: Double? = null,
     val duration: Double? = null,
+    val elevation: Double? = null,
     val geometry: String? = null,
 )

@@ -1,5 +1,6 @@
-package com.graduate.work.sporterapp.features.maps.vm
+package com.graduate.work.sporterapp.features.home.screens.map.route_builder.vm
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,18 +16,17 @@ import com.graduate.work.sporterapp.domain.maps.location.usecases.GetUserLocatio
 import com.graduate.work.sporterapp.domain.maps.mapbox.domain.MapPoint
 import com.graduate.work.sporterapp.domain.maps.mapbox.domain.MapRoute
 import com.graduate.work.sporterapp.domain.maps.mapbox.usecases.GetRouteFromCoordinatesUseCase
-import com.graduate.work.sporterapp.features.maps.screen.HomeScreenConstants.NEW_POINT_DIALOG_ANIMATION_DURATION
 import com.mapbox.geojson.Point
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class MapState(
+data class RouteBuilderState(
     val currentMapStyle: MapBoxStyle = MapBoxStyle.STREET,
     val userLocationPoint: Point? = null,
     val lastSelectedPoint: Point? = null,
-    val numOfAllUserPoints: Int = 0,
+    val pointAlphabetIndex: Int = 0,
     val userPoints: List<MapPoint> = emptyList(),
     val route: MapRoute? = null,
     val routeNotFoundError: Boolean = false,
@@ -35,12 +35,12 @@ data class MapState(
 )
 
 @HiltViewModel
-class MapScreenViewModel @Inject constructor(
+class RouteBuilderScreenViewModel @Inject constructor(
     private val getUserLocationUseCase: GetUserLocationUseCase,
     private val getRouteFromCoordinatesUseCase: GetRouteFromCoordinatesUseCase,
 ) : ViewModel() {
 
-    var state by mutableStateOf(MapState())
+    var state by mutableStateOf(RouteBuilderState())
         private set
 
     init {
@@ -83,10 +83,10 @@ class MapScreenViewModel @Inject constructor(
     private fun addPoint(point: Point) {
         state = state.copy(
             userPoints = state.userPoints + MapPoint(
-                state.numOfAllUserPoints.getAlphabetLetterByIndex(),
+                state.pointAlphabetIndex.getAlphabetLetterByIndex(),
                 point
             ),
-            numOfAllUserPoints = state.numOfAllUserPoints + 1
+            pointAlphabetIndex = state.pointAlphabetIndex + 1
         )
         deleteLastSelectedPoint()
         getRoute()
@@ -100,13 +100,17 @@ class MapScreenViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(isNewPointDialogOpened = false)
             // delay for animation
-            delay(NEW_POINT_DIALOG_ANIMATION_DURATION.toLong())
+            delay(NEW_POINT_DIALOG_ANIMATION_DURATION)
             state = state.copy(lastSelectedPoint = null)
         }
     }
 
-    private fun clearRoute() {
-        state = state.copy(route = null, routeNotFoundError = false, numOfAllUserPoints = 0)
+    private fun clearRoute(isEmpty: Boolean = true) {
+        state = state.copy(
+            route = null,
+            routeNotFoundError = false,
+            pointAlphabetIndex = if (isEmpty) 0 else state.pointAlphabetIndex
+        )
     }
 
     private fun getRoute() {
@@ -116,6 +120,7 @@ class MapScreenViewModel @Inject constructor(
         state = state.copy(isRouteLoading = true)
         viewModelScope.launch {
             val points = state.userPoints.map { it.point }
+            Log.d("AAAAAA", "AAAAAA: $points")
             getRouteFromCoordinatesUseCase(points).let { response ->
                 state = state.copy(isRouteLoading = false)
                 state = when (response) {
@@ -141,7 +146,11 @@ class MapScreenViewModel @Inject constructor(
 
     fun deletePoint(index: Int) {
         state = state.copy(userPoints = state.userPoints - state.userPoints[index])
-        getRoute()
+        if (state.userPoints.size < 2) {
+            clearRoute(state.userPoints.isEmpty())
+        } else {
+            getRoute()
+        }
     }
 
     fun changePointByIndex(from: Int, to: Int) {
@@ -149,5 +158,9 @@ class MapScreenViewModel @Inject constructor(
             userPoints = state.userPoints.toMutableList().move(from, to)
         )
         getRoute()
+    }
+
+    companion object {
+        private const val NEW_POINT_DIALOG_ANIMATION_DURATION = 300L
     }
 }

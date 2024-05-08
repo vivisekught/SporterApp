@@ -21,4 +21,13 @@ sealed class AppNavigation {
             const val AUTH_FEATURE_SCREEN_ROUTE = "auth"
         }
     }
+
+    sealed class Home(val route: String) : AppNavigation() {
+        data object SavedRouteScreen : Home("savedRoute")
+        data object HomeMapScreen : Home("homeMap")
+        data object ProfileScreen : Home("profile")
+        companion object {
+            const val HOME_FEATURE_SCREEN_ROUTE = "home"
+        }
+    }
 }

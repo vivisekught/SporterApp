@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.features.maps.ui.points_list
+package com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.points_list
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
