@@ -5,10 +5,10 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.data.maps.location.UserLocationRepositoryImpl
-import com.graduate.work.sporterapp.data.maps.mapbox.directions.MapboxDirectionsRepositoryImpl
+import com.graduate.work.sporterapp.data.maps.mapbox.MapboxApiRepositoryImpl
 import com.graduate.work.sporterapp.di.maps.annotations.MapboxPublicToken
 import com.graduate.work.sporterapp.domain.maps.location.UserLocationRepository
-import com.graduate.work.sporterapp.domain.maps.mapbox.MapboxDirectionsRepository
+import com.graduate.work.sporterapp.domain.maps.mapbox.MapboxApiRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -24,7 +24,7 @@ interface MapsModule {
     fun bindUserLocationRepository(impl: UserLocationRepositoryImpl): UserLocationRepository
 
     @Binds
-    fun bindMapboxDirectionsRepository(impl: MapboxDirectionsRepositoryImpl): MapboxDirectionsRepository
+    fun bindMapboxDirectionsRepository(impl: MapboxApiRepositoryImpl): MapboxApiRepository
 
     companion object {
         @Provides

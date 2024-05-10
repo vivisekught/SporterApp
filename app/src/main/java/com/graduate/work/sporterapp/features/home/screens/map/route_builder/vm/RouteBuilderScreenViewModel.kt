@@ -1,20 +1,23 @@
 package com.graduate.work.sporterapp.features.home.screens.map.route_builder.vm
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.core.Response
 import com.graduate.work.sporterapp.core.ext.getAlphabetLetterByIndex
 import com.graduate.work.sporterapp.core.ext.move
 import com.graduate.work.sporterapp.core.ext.toPoint
 import com.graduate.work.sporterapp.core.map.LocationServiceResult
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
+import com.graduate.work.sporterapp.core.snackbar.SnackbarMessage
+import com.graduate.work.sporterapp.core.snackbar.UserMessage
+import com.graduate.work.sporterapp.domain.firebase.storage.routes.entity.Route
+import com.graduate.work.sporterapp.domain.firebase.storage.routes.usecases.SaveRouteInFirestoreUseCase
 import com.graduate.work.sporterapp.domain.maps.location.usecases.GetUserLocationUseCase
-import com.graduate.work.sporterapp.domain.maps.mapbox.domain.MapPoint
-import com.graduate.work.sporterapp.domain.maps.mapbox.domain.MapRoute
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.MapPoint
 import com.graduate.work.sporterapp.domain.maps.mapbox.usecases.GetRouteFromCoordinatesUseCase
 import com.mapbox.geojson.Point
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,16 +31,18 @@ data class RouteBuilderState(
     val lastSelectedPoint: Point? = null,
     val pointAlphabetIndex: Int = 0,
     val userPoints: List<MapPoint> = emptyList(),
-    val route: MapRoute? = null,
-    val routeNotFoundError: Boolean = false,
+    val route: Route? = null,
     val isRouteLoading: Boolean = false,
     val isNewPointDialogOpened: Boolean = false,
+    val snackbarMessage: SnackbarMessage? = null,
+    val shouldAnimateCameraToRoute: Boolean = false,
 )
 
 @HiltViewModel
 class RouteBuilderScreenViewModel @Inject constructor(
     private val getUserLocationUseCase: GetUserLocationUseCase,
     private val getRouteFromCoordinatesUseCase: GetRouteFromCoordinatesUseCase,
+    private val saveRouteInFirestoreUseCase: SaveRouteInFirestoreUseCase,
 ) : ViewModel() {
 
     var state by mutableStateOf(RouteBuilderState())
@@ -108,7 +113,7 @@ class RouteBuilderScreenViewModel @Inject constructor(
     private fun clearRoute(isEmpty: Boolean = true) {
         state = state.copy(
             route = null,
-            routeNotFoundError = false,
+            userPoints = emptyList(),
             pointAlphabetIndex = if (isEmpty) 0 else state.pointAlphabetIndex
         )
     }
@@ -120,12 +125,11 @@ class RouteBuilderScreenViewModel @Inject constructor(
         state = state.copy(isRouteLoading = true)
         viewModelScope.launch {
             val points = state.userPoints.map { it.point }
-            Log.d("AAAAAA", "AAAAAA: $points")
             getRouteFromCoordinatesUseCase(points).let { response ->
                 state = state.copy(isRouteLoading = false)
                 state = when (response) {
                     is Response.Failure -> {
-                        state.copy(routeNotFoundError = true)
+                        state.copy(snackbarMessage = SnackbarMessage.from(UserMessage.from(response.message)))
                     }
 
                     is Response.Success -> {
@@ -134,10 +138,6 @@ class RouteBuilderScreenViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun resetRouteError() {
-        state = state.copy(routeNotFoundError = false)
     }
 
     fun changeMapStyle(style: MapBoxStyle) {
@@ -158,6 +158,51 @@ class RouteBuilderScreenViewModel @Inject constructor(
             userPoints = state.userPoints.toMutableList().move(from, to)
         )
         getRoute()
+    }
+
+    fun setFirstSelectedPointAsDestination() {
+        state.userPoints.getOrNull(0)?.let { addPoint(it.point) }
+    }
+
+    fun saveRoute(routeName: String, routeDescription: String) {
+        viewModelScope.launch {
+            state = state.copy(isRouteLoading = true)
+            saveRouteAttributes(routeName, routeDescription)
+            state.route?.let {
+                saveRouteInFirestoreUseCase(it, state.currentMapStyle) { error ->
+                    state = state.copy(isRouteLoading = false)
+                    if (error == null) {
+                        state = state.copy(
+                            shouldAnimateCameraToRoute = false,
+                            snackbarMessage = SnackbarMessage.from(
+                                UserMessage.from(R.string.route_saved)
+                            )
+                        )
+                        clearRoute()
+                    } else {
+                        state = state.copy(
+                            shouldAnimateCameraToRoute = false,
+                            snackbarMessage = SnackbarMessage.from(
+                                UserMessage.from(R.string.route_saving_error),
+                            )
+                        )
+                    }
+
+                }
+            }
+        }
+    }
+
+    private fun saveRouteAttributes(routeName: String, routeDescription: String) {
+        state =
+            state.copy(
+                route = state.route?.copy(name = routeName, description = routeDescription),
+                shouldAnimateCameraToRoute = true
+            )
+    }
+
+    fun dismissSnackbar() {
+        state = state.copy(snackbarMessage = null)
     }
 
     companion object {

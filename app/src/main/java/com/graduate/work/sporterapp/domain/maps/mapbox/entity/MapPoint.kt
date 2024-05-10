@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.domain.maps.mapbox.domain
+package com.graduate.work.sporterapp.domain.maps.mapbox.entity
 
 import com.mapbox.geojson.Point
 

@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.graduate.work.sporterapp.R
-import com.graduate.work.sporterapp.domain.maps.mapbox.domain.MapPoint
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.MapPoint
 import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.points_list.PointConstants.POINT_HEIGHT
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch

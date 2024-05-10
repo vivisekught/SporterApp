@@ -101,7 +101,9 @@ dependencies {
     // firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
-    implementation(libs.firebase.crashlytics)
+//    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
     implementation(libs.firebase.auth)
 
     // google auth
@@ -125,6 +127,8 @@ dependencies {
 
     implementation(libs.android.gpx.parser)
 
+    // koil
+    implementation(libs.coil.compose)
 
 
 

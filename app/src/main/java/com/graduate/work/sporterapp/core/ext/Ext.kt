@@ -4,11 +4,13 @@ import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.location.Location
 import androidx.core.content.ContextCompat
 import com.mapbox.core.constants.Constants
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
+import java.io.ByteArrayOutputStream
 import kotlin.math.ceil
 
 fun Context.isLocationPermissionGranted(): Boolean {
@@ -29,7 +31,7 @@ fun List<Point>.toDirectionsString(): String = joinToString(separator = ";") { p
 }
 
 fun String.getCoordinates(): List<Point> {
-    val lineString = LineString.fromPolyline(this, Constants.PRECISION_6)
+    val lineString = LineString.fromPolyline(this, Constants.PRECISION_5)
     return lineString.coordinates()
 }
 
@@ -64,3 +66,10 @@ fun Double?.parseSeconds(): String {
 fun Double.roundTo2(): Double = Math.round(this * 100.0) / 100.0
 
 fun Double.roundTo6(): Double = Math.round(this * 1000000.0) / 1000000.0
+
+fun Bitmap?.convertToByteArray(): ByteArray? {
+    if (this == null) return null
+    val baos = ByteArrayOutputStream()
+    this.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+    return baos.toByteArray()
+}

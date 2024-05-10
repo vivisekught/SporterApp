@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.di.firebase.auth
+package com.graduate.work.sporterapp.di.firebase
 
 import com.google.firebase.auth.FirebaseAuth
 import com.graduate.work.sporterapp.data.firebase.auth.FirebaseAuthRepositoryImpl

@@ -23,7 +23,7 @@ sealed class AppNavigation {
     }
 
     sealed class Home(val route: String) : AppNavigation() {
-        data object SavedRouteScreen : Home("savedRoute")
+        data object SavedRoutesScreen : Home("savedRoute")
         data object HomeMapScreen : Home("homeMap")
         data object ProfileScreen : Home("profile")
         companion object {

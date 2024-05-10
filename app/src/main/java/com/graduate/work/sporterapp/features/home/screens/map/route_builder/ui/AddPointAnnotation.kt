@@ -13,7 +13,7 @@ import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
 
 @OptIn(MapboxExperimental::class)
 @Composable
-fun AddPointAnnotation(context: Context, text: String, point: Point, onClick: () -> Unit = { }) {
+fun AddPointAnnotation(context: Context, text: String, point: Point) {
     val drawable = ResourcesCompat.getDrawable(
         context.resources,
         R.drawable.ic_checkpoint,
@@ -31,8 +31,5 @@ fun AddPointAnnotation(context: Context, text: String, point: Point, onClick: ()
         textField = text,
         textColorInt = Color.WHITE,
         textSize = 20.0
-    ) {
-        onClick()
-        true
-    }
+    )
 }

@@ -51,4 +51,12 @@
     <string name="more">More</string>
     <string name="build_route">Build route</string>
     <string name="profile">Profile</string>
+    <string name="move_camera_to_route">Move camera to route</string>
+    <string name="selected_points">Selected points</string>
+    <string name="set_first_point_as_finish">Set first point as finish</string>
+    <string name="save_route">Save route</string>
+    <string name="back">Back</string>
+    <string name="save">Save</string>
+    <string name="route_saved">Route saved!</string>
+    <string name="route_saving_error">Route saving error</string>
 </resources>
