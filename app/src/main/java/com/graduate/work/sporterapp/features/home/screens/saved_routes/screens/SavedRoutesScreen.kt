@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
@@ -17,19 +18,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
 import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.core.snackbar.LocalSnackbarController
 import com.graduate.work.sporterapp.core.snackbar.SnackbarController
+import com.graduate.work.sporterapp.features.home.screens.saved_routes.ui.SavedRoute
 import com.graduate.work.sporterapp.features.home.screens.saved_routes.vm.SavedRouteScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SavedRouteScreen(
+fun SavedRoutesScreen(
     snackbarHostState: SnackbarHostState,
     snackbarController: SnackbarController = LocalSnackbarController.current,
+    navToRoutePage: (String) -> Unit,
 ) {
     val viewModel = hiltViewModel<SavedRouteScreenViewModel>()
     DisposableEffect(viewModel) {
@@ -55,13 +58,27 @@ fun SavedRouteScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+//            if (viewModel.routes.isEmpty()){
+//                Text(text = "No saved routes", modifier = Modifier.constrainAs(createRef()){
+//                    centerTo(parent)
+//                })
+//            } else {
             LazyColumn(Modifier.fillMaxSize()) {
                 items(viewModel.routes.values.toList(), key = { it.routeId }) { route ->
-                    route.routeImgUrl?.let { url ->
-                        AsyncImage(model = url, contentDescription = null)
+                    HorizontalDivider(
+                        modifier = Modifier.padding(
+                            start = 4.dp,
+                            end = 4.dp,
+                            top = 12.dp,
+                            bottom = 12.dp
+                        )
+                    )
+                    SavedRoute(route = route) {
+                        navToRoutePage(route.routeId)
                     }
                 }
             }
+//            }
         }
     }
 }

@@ -12,8 +12,8 @@ class GetStaticMapUrlUseCase @Inject constructor(
         route: Route,
         style: MapBoxStyle?,
     ): String {
-        val startPoint = route.points?.get(0)
-        val endPoint = route.points?.get(route.points.lastIndex)
+        val startPoint = route.points?.first()
+        val endPoint = route.points?.last()
         val geometry = route.geometry
         return mapboxApiRepository.getStaticMapUrl(
             startPoint,

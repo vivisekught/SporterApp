@@ -13,7 +13,7 @@ import com.mapbox.maps.extension.compose.annotation.generated.PointAnnotation
 
 @OptIn(MapboxExperimental::class)
 @Composable
-fun AddPointAnnotation(context: Context, text: String, point: Point) {
+fun AddCheckPointAnnotation(context: Context, text: String, point: Point) {
     val drawable = ResourcesCompat.getDrawable(
         context.resources,
         R.drawable.ic_checkpoint,
@@ -33,3 +33,26 @@ fun AddPointAnnotation(context: Context, text: String, point: Point) {
         textSize = 20.0
     )
 }
+
+//@OptIn(MapboxExperimental::class)
+//@Composable
+//fun AddPointAnnotation(context: Context, text: String, point: Point) {
+//    val drawable = ResourcesCompat.getDrawable(
+//        context.resources,
+//        R.drawable.baseline_location_pin_24,
+//        null
+//    )
+//    val bitmap = drawable?.toBitmap(
+//        drawable.intrinsicWidth,
+//        drawable.intrinsicHeight,
+//        Bitmap.Config.ARGB_8888
+//    )
+//    PointAnnotation(
+//        iconImageBitmap = bitmap,
+//        iconSize = 2.0,
+//        point = point,
+//        textField = text,
+//        textColorInt = Color.BLACK,
+//        textSize = 18.0
+//    )
+//}

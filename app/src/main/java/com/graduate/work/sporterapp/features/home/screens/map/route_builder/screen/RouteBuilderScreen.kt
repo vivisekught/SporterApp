@@ -49,24 +49,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.atMost
 import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.core.ext.getAlphabetLetterByIndex
-import com.graduate.work.sporterapp.core.ext.metersToKms
-import com.graduate.work.sporterapp.core.ext.parseSeconds
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
 import com.graduate.work.sporterapp.core.snackbar.SnackbarMessageHandler
-import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.AddPointAnnotation
+import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.AddCheckPointAnnotation
 import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.NewPointView
+import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.RouteMetrics
 import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.menu.RouteBuilderDropDownMenu
 import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.menu.RouteBuilderDropDownMenuState
 import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.points_list.RouteInfoPanel
@@ -290,14 +286,14 @@ fun RouteBuilderScreen(
                     )
                 }
                 uiState.lastSelectedPoint?.let {
-                    AddPointAnnotation(
+                    AddCheckPointAnnotation(
                         context,
                         (uiState.pointAlphabetIndex).getAlphabetLetterByIndex(),
                         it
                     )
                 }
                 uiState.userPoints.forEach { point ->
-                    AddPointAnnotation(context, point.name, point.point)
+                    AddCheckPointAnnotation(context, point.name, point.point)
                 }
             }
             AnimatedVisibility(
@@ -349,48 +345,20 @@ fun RouteBuilderScreen(
                         width = Dimension.matchParent
                         height = Dimension.preferredWrapContent.atMost(36.dp)
                     }
-                    .background(color = MaterialTheme.colorScheme.surface.copy(0.75f))
-                    .padding(start = 8.dp, end = 8.dp),
+                    .background(
+                        color = MaterialTheme.colorScheme.surface.copy(0.7f)
+                    ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Absolute.Center
             ) {
-                uiState.route?.let {
-                    Row(
-                        Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Absolute.Center
-                    ) {
-                        Icon(
-                            painterResource(id = R.drawable.ic_double_arrow),
-                            contentDescription = "Distance",
-                            tint = Color.Unspecified,
-                            modifier = Modifier.padding(4.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            it.distance.metersToKms().toString() + " km",
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                    Row(
-                        Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Absolute.Center
-                    ) {
-                        Icon(
-                            painterResource(id = R.drawable.ic_timer),
-                            contentDescription = "Time",
-                            tint = Color.Unspecified,
-                            modifier = Modifier.padding(4.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(it.duration.parseSeconds(), textAlign = TextAlign.Center)
-                    }
-                }
+                RouteMetrics(uiState.route)
             }
             Column(
                 modifier = Modifier
-                    .alpha(0.7f)
-                    .background(MaterialTheme.colorScheme.background)
+                    .background(
+                        color = MaterialTheme.colorScheme.surface.copy(0.7f),
+                        shape = MaterialTheme.shapes.medium
+                    )
                     .padding(8.dp)
                     .constrainAs(createRef()) {
                         bottom.linkTo(routeInfoRef.top)

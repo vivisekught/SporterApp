@@ -9,6 +9,7 @@ credentialsVersion = "1.2.2"
 credentialsPlayServicesAuth = "1.2.2"
 firebaseBom = "33.0.0"
 googleid = "1.1.0"
+gpx_lib = "1.0.3"
 gradle = "8.3.2"
 hiltAndroid = "2.51"
 hiltNavigationCompose = "1.2.0"
@@ -19,6 +20,7 @@ junitVersion = "1.1.5"
 espressoCore = "3.5.1"
 appcompat = "1.6.1"
 mapboxSdkServices = "7.0.0"
+mapboxSdkTurf = "7.0.0"
 mapsCompose = "0.1.0"
 material = "1.12.0"
 lifecycleRuntimeKtx = "2.7.0"
@@ -53,6 +55,7 @@ firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-storage = { module = "com.google.firebase:firebase-storage" }
 googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
+gpx_lib = { module = "com.codebutchery.android:gpx_lib", version.ref = "gpx_lib" }
 gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hiltAndroid" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hiltAndroid" }
@@ -61,6 +64,7 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 mapbox-sdk-services = { module = "com.mapbox.mapboxsdk:mapbox-sdk-services", version.ref = "mapboxSdkServices" }
+mapbox-sdk-turf = { module = "com.mapbox.mapboxsdk:mapbox-sdk-turf", version.ref = "mapboxSdkTurf" }
 maps-compose = { module = "com.mapbox.extension:maps-compose", version.ref = "mapsCompose" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }

@@ -117,6 +117,7 @@ dependencies {
     implementation(libs.android.maps)
     implementation(libs.mapbox.sdk.services)
     implementation(libs.maps.compose)
+    implementation(libs.mapbox.sdk.turf)
 
     // splash screen
     implementation(libs.androidx.core.splashscreen)
@@ -130,6 +131,7 @@ dependencies {
     // koil
     implementation(libs.coil.compose)
 
-
-
+    // Charts
+    implementation("com.patrykandpatrick.vico:compose:2.0.0-alpha.19")
+    implementation("com.patrykandpatrick.vico:compose-m3:2.0.0-alpha.19")
 }

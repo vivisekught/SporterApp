@@ -59,4 +59,8 @@
     <string name="save">Save</string>
     <string name="route_saved">Route saved!</string>
     <string name="route_saving_error">Route saving error</string>
+    <string name="route_loading_error">Route loading error</string>
+    <string name="export_gpx">Export gpx</string>
+    <string name="route_not_found">Route not found</string>
+    <string name="gpx_export_error">Gpx export error</string>
 </resources>

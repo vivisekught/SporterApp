@@ -22,15 +22,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.core.snackbar.ProvideSnackbarController
 import com.graduate.work.sporterapp.features.home.screens.map.route_builder.RouteBuilderCompleteScreen
 import com.graduate.work.sporterapp.features.home.screens.profile.ProfileScreen
-import com.graduate.work.sporterapp.features.home.screens.saved_routes.screens.SavedRouteScreen
+import com.graduate.work.sporterapp.features.home.screens.saved_route_page.screen.RoutePageScreenCompleteScreen
+import com.graduate.work.sporterapp.features.home.screens.saved_routes.screens.SavedRoutesScreen
 import com.graduate.work.sporterapp.navigation.AppNavigation
 
 data class BottomNavItem(
@@ -71,17 +74,38 @@ fun HomeCompleteScreen() {
         ) {
             NavHost(
                 navController = bottomNavController,
-                startDestination = AppNavigation.Home.HomeMapScreen.route,
+                startDestination = AppNavigation.Home.SavedRoutesScreen.route,
                 modifier = Modifier.weight(1f)
             ) {
                 composable(AppNavigation.Home.HomeMapScreen.route) {
                     RouteBuilderCompleteScreen(snackbarHostState)
                 }
                 composable(AppNavigation.Home.SavedRoutesScreen.route) {
-                    SavedRouteScreen(snackbarHostState)
+                    SavedRoutesScreen(snackbarHostState) { routeId ->
+                        bottomNavController.navigate(
+                            AppNavigation.Home.RoutePageScreen.createRoutePageScreen(
+                                routeId
+                            )
+                        )
+                    }
                 }
                 composable(AppNavigation.Home.ProfileScreen.route) {
                     ProfileScreen()
+                }
+                composable(AppNavigation.Home.RoutePageScreen.route, arguments = listOf(
+                    navArgument(
+                        name = AppNavigation.Home.RoutePageScreen.routeIdArg,
+                    ) {
+                        type = NavType.StringType
+                    }
+                )) { backStackEntry ->
+                    val routeId =
+                        backStackEntry.arguments?.getString(AppNavigation.Home.RoutePageScreen.routeIdArg)
+                    routeId?.let {
+                        RoutePageScreenCompleteScreen(snackbarHostState, routeId) {
+                            bottomNavController.popBackStack()
+                        }
+                    }
                 }
             }
             NavigationBar {

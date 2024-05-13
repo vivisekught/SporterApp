@@ -16,4 +16,5 @@ interface MapboxApiRepository {
         geometry: String?,
         style: MapBoxStyle,
     ): URL
+
 }

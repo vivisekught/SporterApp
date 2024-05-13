@@ -26,6 +26,10 @@ sealed class AppNavigation {
         data object SavedRoutesScreen : Home("savedRoute")
         data object HomeMapScreen : Home("homeMap")
         data object ProfileScreen : Home("profile")
+        data object RoutePageScreen : Home("routePage/{routeId}") {
+            const val routeIdArg = "routeId"
+            fun createRoutePageScreen(routeId: String) = "routePage/$routeId"
+        }
         companion object {
             const val HOME_FEATURE_SCREEN_ROUTE = "home"
         }

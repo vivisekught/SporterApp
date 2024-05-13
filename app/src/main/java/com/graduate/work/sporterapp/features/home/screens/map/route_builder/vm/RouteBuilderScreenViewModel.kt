@@ -1,5 +1,6 @@
 package com.graduate.work.sporterapp.features.home.screens.map.route_builder.vm
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -23,6 +24,7 @@ import com.mapbox.geojson.Point
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 data class RouteBuilderState(
@@ -35,7 +37,6 @@ data class RouteBuilderState(
     val isRouteLoading: Boolean = false,
     val isNewPointDialogOpened: Boolean = false,
     val snackbarMessage: SnackbarMessage? = null,
-    val shouldAnimateCameraToRoute: Boolean = false,
 )
 
 @HiltViewModel
@@ -137,6 +138,7 @@ class RouteBuilderScreenViewModel @Inject constructor(
                     }
                 }
             }
+            Log.d("AAAAAA", "getRoute vm: ${state.route?.points}")
         }
     }
 
@@ -173,7 +175,6 @@ class RouteBuilderScreenViewModel @Inject constructor(
                     state = state.copy(isRouteLoading = false)
                     if (error == null) {
                         state = state.copy(
-                            shouldAnimateCameraToRoute = false,
                             snackbarMessage = SnackbarMessage.from(
                                 UserMessage.from(R.string.route_saved)
                             )
@@ -181,7 +182,6 @@ class RouteBuilderScreenViewModel @Inject constructor(
                         clearRoute()
                     } else {
                         state = state.copy(
-                            shouldAnimateCameraToRoute = false,
                             snackbarMessage = SnackbarMessage.from(
                                 UserMessage.from(R.string.route_saving_error),
                             )
@@ -196,8 +196,11 @@ class RouteBuilderScreenViewModel @Inject constructor(
     private fun saveRouteAttributes(routeName: String, routeDescription: String) {
         state =
             state.copy(
-                route = state.route?.copy(name = routeName, description = routeDescription),
-                shouldAnimateCameraToRoute = true
+                route = state.route?.copy(
+                    name = routeName,
+                    description = routeDescription,
+                    timeStamp = Date().time
+                ),
             )
     }
 

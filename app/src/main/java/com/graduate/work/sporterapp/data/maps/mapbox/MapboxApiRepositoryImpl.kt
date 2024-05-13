@@ -1,5 +1,6 @@
 package com.graduate.work.sporterapp.data.maps.mapbox
 
+import com.graduate.work.sporterapp.core.Response
 import com.graduate.work.sporterapp.core.Response.Failure
 import com.graduate.work.sporterapp.core.Response.Success
 import com.graduate.work.sporterapp.core.ext.getCoordinates
@@ -18,7 +19,6 @@ import com.mapbox.api.staticmap.v1.models.StaticMarkerAnnotation
 import com.mapbox.api.staticmap.v1.models.StaticPolylineAnnotation
 import com.mapbox.geojson.Point
 import retrofit2.Call
-import retrofit2.Response
 import java.net.URL
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -28,8 +28,8 @@ class MapboxApiRepositoryImpl @Inject constructor(
     @MapboxPublicToken private val publicToken: String,
 ) : MapboxApiRepository {
 
-    override suspend fun getRoute(coordinates: List<Point>): com.graduate.work.sporterapp.core.Response<Route?> =
-        suspendCoroutine { continuation ->
+    override suspend fun getRoute(coordinates: List<Point>): Response<Route?> {
+        return suspendCoroutine { continuation ->
             val client = MapboxDirections.builder()
                 .accessToken(publicToken)
                 .routeOptions(
@@ -42,7 +42,7 @@ class MapboxApiRepositoryImpl @Inject constructor(
             client?.enqueueCall(object : retrofit2.Callback<DirectionsResponse> {
                 override fun onResponse(
                     call: Call<DirectionsResponse>,
-                    response: Response<DirectionsResponse>,
+                    response: retrofit2.Response<DirectionsResponse>,
                 ) {
                     if (response.body() == null || ((response.body()?.routes()?.size ?: 0) < 1)) {
                         continuation.resume(Failure("Response is empty"))
@@ -52,12 +52,12 @@ class MapboxApiRepositoryImpl @Inject constructor(
                         val route = response.body()?.routes()?.get(0)
                         val distance = route?.distance() ?: 0.0
                         val duration = route?.duration() ?: 0.0
-                        val polyline = route?.geometry()?.getCoordinates()
+                        val polylineWithoutElevation = route?.geometry()?.getCoordinates()
                         val geometry = route?.geometry()
                         val mapRoute = Route(
                             distance = distance,
                             duration = duration,
-                            points = polyline,
+                            points = polylineWithoutElevation,
                             geometry = geometry
                         )
                         route?.let {
@@ -74,6 +74,7 @@ class MapboxApiRepositoryImpl @Inject constructor(
                 }
             })
         }
+    }
 
     override fun getStaticMapUrl(
         startPoint: Point?,

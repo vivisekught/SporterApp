@@ -11,6 +11,9 @@ import com.mapbox.core.constants.Constants
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.ceil
 
 fun Context.isLocationPermissionGranted(): Boolean {
@@ -63,13 +66,30 @@ fun Double?.parseSeconds(): String {
     return String.format("%02d:%02d", hours.toInt(), minutes)
 }
 
-fun Double.roundTo2(): Double = Math.round(this * 100.0) / 100.0
+fun Double?.roundTo2(): Double {
+    if (this == null) return 0.0
+    return Math.round(this * 100.0) / 100.0
+}
 
-fun Double.roundTo6(): Double = Math.round(this * 1000000.0) / 1000000.0
+fun Double?.roundTo6(): Double {
+    if (this == null) return 0.0
+    return Math.round(this * 1000000.0) / 1000000.0
+}
 
 fun Bitmap?.convertToByteArray(): ByteArray? {
     if (this == null) return null
     val baos = ByteArrayOutputStream()
     this.compress(Bitmap.CompressFormat.JPEG, 100, baos)
     return baos.toByteArray()
+}
+
+fun Long?.getDateTime(): String {
+    if (this == null) return ""
+    return try {
+        val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+        val netDate = Date(this)
+        sdf.format(netDate)
+    } catch (e: Exception) {
+        ""
+    }
 }

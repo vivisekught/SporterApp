@@ -10,7 +10,9 @@ data class Route(
     val points: List<Point>? = null,
     val distance: Double? = null,
     val duration: Double? = null,
-    val elevation: Double? = null,
+    val climb: Double? = null,
+    val descent: Double? = null,
     val geometry: String? = null,
     val routeImgUrl: String? = null,
+    val timeStamp: Long? = null,
 )

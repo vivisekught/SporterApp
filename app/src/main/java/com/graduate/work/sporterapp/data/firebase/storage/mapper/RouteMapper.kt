@@ -15,9 +15,11 @@ class RouteMapper {
         points = entity.points?.map { Point.fromLngLat(it.lng, it.lat, it.altitude) },
         distance = entity.distance,
         duration = entity.duration,
-        elevation = entity.elevation,
+        climb = entity.climb,
+        descent = entity.descent,
         geometry = entity.geometry,
-        routeImgUrl = entity.routeImgUrl
+        routeImgUrl = entity.routeImgUrl,
+        timeStamp = entity.timeStamp
     )
 
     fun mapEntityToFirestorePojo(route: Route) = FirestoreRoutePojo(
@@ -34,8 +36,10 @@ class RouteMapper {
         },
         distance = route.distance,
         duration = route.duration,
-        elevation = route.elevation,
+        climb = route.climb,
+        descent = route.descent,
         geometry = route.geometry,
-        routeImgUrl = route.routeImgUrl
+        routeImgUrl = route.routeImgUrl,
+        timeStamp = route.timeStamp
     )
 }
