@@ -7,8 +7,8 @@ import com.graduate.work.sporterapp.core.ext.getCoordinates
 import com.graduate.work.sporterapp.core.ext.toDirectionsString
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
 import com.graduate.work.sporterapp.di.maps.annotations.MapboxPublicToken
-import com.graduate.work.sporterapp.domain.firebase.storage.routes.entity.Route
 import com.graduate.work.sporterapp.domain.maps.mapbox.MapboxApiRepository
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.MapboxDirections
 import com.mapbox.api.directions.v5.models.DirectionsResponse

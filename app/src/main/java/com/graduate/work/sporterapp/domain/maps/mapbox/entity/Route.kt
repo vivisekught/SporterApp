@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.domain.firebase.storage.routes.entity
+package com.graduate.work.sporterapp.domain.maps.mapbox.entity
 
 import com.mapbox.geojson.Point
 

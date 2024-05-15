@@ -1,7 +1,7 @@
 package com.graduate.work.sporterapp.data.maps.gpx
 
-import com.graduate.work.sporterapp.domain.firebase.storage.routes.entity.Route
 import com.graduate.work.sporterapp.domain.maps.gpx.GpxFileRepository
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -24,7 +24,7 @@ import androidx.constraintlayout.compose.Dimension
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.graduate.work.sporterapp.core.ext.getDateTime
-import com.graduate.work.sporterapp.domain.firebase.storage.routes.entity.Route
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.RouteMetrics
 
 @Composable

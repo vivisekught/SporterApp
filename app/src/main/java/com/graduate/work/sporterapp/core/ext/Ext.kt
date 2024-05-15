@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.abs
 import kotlin.math.ceil
 
 fun Context.isLocationPermissionGranted(): Boolean {
@@ -93,3 +94,5 @@ fun Long?.getDateTime(): String {
         ""
     }
 }
+
+fun List<Double>.closestValue(value: Double) = minBy { abs(value - it) }

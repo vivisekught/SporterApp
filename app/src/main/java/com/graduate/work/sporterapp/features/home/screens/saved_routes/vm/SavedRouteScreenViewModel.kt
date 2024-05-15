@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.GetUserIdUseCase
 import com.graduate.work.sporterapp.domain.firebase.storage.routes.CloudStorageRouteRepository
-import com.graduate.work.sporterapp.domain.firebase.storage.routes.entity.Route
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

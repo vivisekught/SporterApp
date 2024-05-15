@@ -28,6 +28,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.core.snackbar.ProvideSnackbarController
 import com.graduate.work.sporterapp.features.home.screens.map.route_builder.RouteBuilderCompleteScreen
@@ -89,7 +90,12 @@ fun HomeCompleteScreen() {
                         )
                     }
                 }
-                composable(AppNavigation.Home.ProfileScreen.route) {
+                composable(
+                    AppNavigation.Home.ProfileScreen.route,
+                    deepLinks = listOf(navDeepLink {
+                        uriPattern = "https://graduteworksporterapp.com"
+                    })
+                ) {
                     ProfileScreen()
                 }
                 composable(AppNavigation.Home.RoutePageScreen.route, arguments = listOf(

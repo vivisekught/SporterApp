@@ -1,6 +1,5 @@
 package com.graduate.work.sporterapp.data.api
 
-import android.util.Log
 import com.graduate.work.sporterapp.data.api.pojo.ElevationResponsePojo
 import com.graduate.work.sporterapp.data.api.services.ElevationService
 import com.graduate.work.sporterapp.domain.api.ElevationApiRepository
@@ -60,7 +59,6 @@ class ElevationApiRepositoryImpl @Inject constructor(
                     response: Response<ElevationResponsePojo>,
                 ) {
                     val altitudes = response.body()?.elevation
-                    Log.d("AAAAAA", "onResponse: $altitudes")
                     var altitudeIndex = 0
                     if (altitudes != null) {
                         pointsWithoutAltitude.forEach { (key, point) ->

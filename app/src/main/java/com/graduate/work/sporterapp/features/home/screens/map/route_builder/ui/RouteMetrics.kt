@@ -21,7 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.graduate.work.sporterapp.core.ext.metersToKms
 import com.graduate.work.sporterapp.core.ext.parseSeconds
-import com.graduate.work.sporterapp.domain.firebase.storage.routes.entity.Route
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 
 @Composable
 fun RowScope.RouteMetrics(route: Route?) {

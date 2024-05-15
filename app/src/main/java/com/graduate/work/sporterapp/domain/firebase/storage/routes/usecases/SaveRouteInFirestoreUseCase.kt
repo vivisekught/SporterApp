@@ -3,7 +3,7 @@ package com.graduate.work.sporterapp.domain.firebase.storage.routes.usecases
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.GetUserIdUseCase
 import com.graduate.work.sporterapp.domain.firebase.storage.routes.CloudStorageRouteRepository
-import com.graduate.work.sporterapp.domain.firebase.storage.routes.entity.Route
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import com.graduate.work.sporterapp.domain.maps.mapbox.usecases.GetStaticMapUrlUseCase
 import javax.inject.Inject
 

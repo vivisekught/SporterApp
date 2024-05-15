@@ -1,6 +1,5 @@
 package com.graduate.work.sporterapp.features.home.screens.map.route_builder.vm
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,10 +14,10 @@ import com.graduate.work.sporterapp.core.map.LocationServiceResult
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
 import com.graduate.work.sporterapp.core.snackbar.SnackbarMessage
 import com.graduate.work.sporterapp.core.snackbar.UserMessage
-import com.graduate.work.sporterapp.domain.firebase.storage.routes.entity.Route
 import com.graduate.work.sporterapp.domain.firebase.storage.routes.usecases.SaveRouteInFirestoreUseCase
 import com.graduate.work.sporterapp.domain.maps.location.usecases.GetUserLocationUseCase
 import com.graduate.work.sporterapp.domain.maps.mapbox.entity.MapPoint
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import com.graduate.work.sporterapp.domain.maps.mapbox.usecases.GetRouteFromCoordinatesUseCase
 import com.mapbox.geojson.Point
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -138,7 +137,6 @@ class RouteBuilderScreenViewModel @Inject constructor(
                     }
                 }
             }
-            Log.d("AAAAAA", "getRoute vm: ${state.route?.points}")
         }
     }
 

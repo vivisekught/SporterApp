@@ -7,7 +7,7 @@ import com.google.firebase.firestore.toObject
 import com.graduate.work.sporterapp.data.firebase.storage.mapper.RouteMapper
 import com.graduate.work.sporterapp.data.firebase.storage.pojo.FirestoreRoutePojo
 import com.graduate.work.sporterapp.domain.firebase.storage.routes.CloudStorageRouteRepository
-import com.graduate.work.sporterapp.domain.firebase.storage.routes.entity.Route
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import javax.inject.Inject
 
 class CloudStorageRouteRepositoryImpl @Inject constructor(

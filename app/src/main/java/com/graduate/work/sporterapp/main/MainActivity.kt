@@ -1,6 +1,8 @@
 package com.graduate.work.sporterapp.main
 
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -30,6 +32,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val intentData: Uri? = intent?.data
+        if (intentData != null) {
+            val code: String? = intentData.getQueryParameter("code")
+            if (code != null) {
+                Log.d("Code from URI", code)
+            } else {
+                Log.d("Code from URI", "No 'code' parameter found in the URI")
+            }
+        }
         installSplashScreen().apply {
             setKeepOnScreenCondition { viewModel.isSplashLoading.value }
         }

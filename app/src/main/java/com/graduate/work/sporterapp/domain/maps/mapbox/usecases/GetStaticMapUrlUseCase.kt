@@ -1,8 +1,8 @@
 package com.graduate.work.sporterapp.domain.maps.mapbox.usecases
 
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
-import com.graduate.work.sporterapp.domain.firebase.storage.routes.entity.Route
 import com.graduate.work.sporterapp.domain.maps.mapbox.MapboxApiRepository
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import javax.inject.Inject
 
 class GetStaticMapUrlUseCase @Inject constructor(

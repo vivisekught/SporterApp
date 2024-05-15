@@ -1,6 +1,6 @@
 package com.graduate.work.sporterapp.domain.maps.gpx
 
-import com.graduate.work.sporterapp.domain.firebase.storage.routes.entity.Route
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 
 interface GpxFileRepository {
 

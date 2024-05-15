@@ -3,8 +3,8 @@ package com.graduate.work.sporterapp.domain.maps.gpx.usecases
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
-import com.graduate.work.sporterapp.domain.firebase.storage.routes.entity.Route
 import com.graduate.work.sporterapp.domain.maps.gpx.GpxFileRepository
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import javax.inject.Inject

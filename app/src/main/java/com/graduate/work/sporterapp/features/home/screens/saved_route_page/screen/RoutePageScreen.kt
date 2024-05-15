@@ -1,11 +1,15 @@
 package com.graduate.work.sporterapp.features.home.screens.saved_route_page.screen
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,7 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.IosShare
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,20 +42,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
 import com.graduate.work.sporterapp.core.snackbar.SnackbarMessageHandler
 import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.AddCheckPointAnnotation
+import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.AddPointAnnotation
 import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.RouteMetrics
 import com.graduate.work.sporterapp.features.home.screens.map.utils.MapUtils.transitionToGeometry
+import com.graduate.work.sporterapp.features.home.screens.saved_route_page.ui.rememberMarker
 import com.graduate.work.sporterapp.features.home.screens.saved_route_page.vm.RoutePageState
 import com.graduate.work.sporterapp.features.home.screens.saved_route_page.vm.RoutePageViewModel
 import com.mapbox.geojson.Point
 import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapboxExperimental
+import com.mapbox.maps.extension.compose.MapEffect
 import com.mapbox.maps.extension.compose.MapboxMap
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
 import com.mapbox.maps.extension.compose.annotation.generated.PolylineAnnotationGroup
@@ -61,7 +66,21 @@ import com.mapbox.maps.plugin.annotation.generated.PolylineAnnotationOptions
 import com.mapbox.maps.plugin.attribution.generated.AttributionSettings
 import com.mapbox.maps.plugin.compass.generated.CompassSettings
 import com.mapbox.maps.plugin.gestures.generated.GesturesSettings
+import com.mapbox.maps.plugin.locationcomponent.createDefault2DPuck
+import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.scalebar.generated.ScaleBarSettings
+import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottomAxis
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStartAxis
+import com.patrykandpatrick.vico.compose.cartesian.fullWidth
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.core.cartesian.HorizontalLayout
+import com.patrykandpatrick.vico.core.cartesian.axis.AxisItemPlacer
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
+import com.patrykandpatrick.vico.core.cartesian.marker.CartesianMarker
+import com.patrykandpatrick.vico.core.cartesian.marker.CartesianMarkerVisibilityListener
 
 @Composable
 fun RoutePageScreenCompleteScreen(
@@ -90,6 +109,14 @@ fun RoutePageScreenCompleteScreen(
             RoutePageScreenEvent.DismissSnackbar -> {
                 viewModel.dismissSnackbar()
             }
+
+            RoutePageScreenEvent.HideMapPoint -> {
+                viewModel.hideMapPoint()
+            }
+
+            is RoutePageScreenEvent.ShowMapPoint -> {
+                viewModel.showMapPoint(it.distance)
+            }
         }
     }
 }
@@ -97,8 +124,9 @@ fun RoutePageScreenCompleteScreen(
 sealed class RoutePageScreenEvent {
     data object Back : RoutePageScreenEvent()
     data object Export : RoutePageScreenEvent()
+    data class ShowMapPoint(val distance: Double) : RoutePageScreenEvent()
+    data object HideMapPoint : RoutePageScreenEvent()
     data object DismissSnackbar : RoutePageScreenEvent()
-
     data object Delete : RoutePageScreenEvent()
 }
 
@@ -148,6 +176,8 @@ fun RoutePageScreen(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(NavigationBarDefaults.windowInsets)
     ) { innerPadding ->
         val context = LocalContext.current
+        val modelProducer = remember { CartesianChartModelProducer.build() }
+        val marker = rememberMarker()
         val mapViewportState = rememberMapViewportState {
             setCameraOptions {
                 center(Point.fromLngLat(0.0, 0.0))
@@ -193,21 +223,32 @@ fun RoutePageScreen(
                 mapViewportState.transitionToGeometry(points, padding = 50.0)
             }
         }
+        LaunchedEffect(uiState.elevationProfile) {
+            if (uiState.elevationProfile?.x != null && uiState.elevationProfile.y != null) {
+                modelProducer.tryRunTransaction {
+                    lineSeries {
+                        series(
+                            x = uiState.elevationProfile.x,
+                            y = uiState.elevationProfile.y
+                        )
+                    }
+                }
+            }
+        }
         SnackbarMessageHandler(
             snackbarMessage = uiState.snackbarMessage,
             onDismissSnackbar = { onEvent(RoutePageScreenEvent.DismissSnackbar) },
         )
-        ConstraintLayout(
+        Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize()
+                .fillMaxWidth()
         ) {
-            val (mapRef) = createRefs()
-            if (uiState.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.constrainAs(createRef()) {
-                    centerTo(parent)
-                })
-            } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.4f)
+            ) {
                 MapboxMap(
                     mapInitOptionsFactory = { context ->
                         MapInitOptions(
@@ -215,17 +256,19 @@ fun RoutePageScreen(
                             styleUri = MapBoxStyle.STREET.style,
                         )
                     },
-                    modifier = Modifier.constrainAs(mapRef) {
-                        top.linkTo(parent.top)
-                        width = Dimension.matchParent
-                        height = Dimension.percent(0.4f)
-                    },
+                    modifier = Modifier.fillMaxSize(),
                     compassSettings = compassSettings,
                     mapViewportState = mapViewportState,
                     scaleBarSettings = scaleBarSetting,
                     gesturesSettings = mapBoxUiSettings,
                     attributionSettings = attributionSettings,
                 ) {
+                    MapEffect(Unit) { mapView ->
+                        with(mapView) {
+                            location.locationPuck = createDefault2DPuck(withBearing = true)
+                            location.enabled = true
+                        }
+                    }
                     uiState.route?.points?.let {
                         PolylineAnnotationGroup(
                             annotations = listOf(
@@ -241,54 +284,105 @@ fun RoutePageScreen(
                         AddCheckPointAnnotation(context, text = "A", point = it.first())
                         AddCheckPointAnnotation(context, text = "B", point = it.last())
                     }
-                }
-                IconButton(onClick = {
-                    uiState.route?.points?.let { points ->
-                        mapViewportState.transitionToGeometry(points, padding = 50.0)
+                    uiState.mapPoint?.let {
+                        AddPointAnnotation(context, point = it)
                     }
-                }, modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.surface.copy(0.7f),
-                        shape = MaterialTheme.shapes.medium
-                    )
-                    .constrainAs(createRef()) {
-                        end.linkTo(parent.end, margin = 4.dp)
-                        bottom.linkTo(mapRef.bottom, margin = 4.dp)
-                    }) {
+                }
+                IconButton(
+                    onClick = {
+                        uiState.route?.points?.let { points ->
+                            mapViewportState.transitionToGeometry(points, padding = 50.0)
+                        }
+                    }, modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .background(
+                            color = MaterialTheme.colorScheme.surface.copy(0.7f),
+                            shape = MaterialTheme.shapes.medium
+                        )
+                        .padding(4.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.Map,
                         contentDescription = stringResource(id = R.string.move_camera_to_route)
                     )
                 }
-                Column(modifier = Modifier
-                    .constrainAs(createRef()) {
-                        top.linkTo(mapRef.bottom)
-                    }
+            }
+            Column(
+                Modifier
+                    .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    text = uiState.route?.name ?: "Route",
+                    style = MaterialTheme.typography.headlineMedium,
+                    maxLines = 5,
+                    modifier = Modifier.padding(start = 4.dp, top = 16.dp)
+                )
+                Text(
+                    text = uiState.route?.description ?: "Description",
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 10,
+                    modifier = Modifier.padding(start = 4.dp, top = 8.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
                 ) {
-                    Text(
-                        text = uiState.route?.name ?: "Route",
-                        style = MaterialTheme.typography.headlineMedium,
-                        maxLines = 5,
-                        modifier = Modifier.padding(8.dp)
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = uiState.route?.description ?: "Description",
-                        style = MaterialTheme.typography.titleSmall,
-                        maxLines = 10,
-                        modifier = Modifier.padding(8.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        RouteMetrics(uiState.route)
-                    }
+                    RouteMetrics(uiState.route)
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                CartesianChartHost(
+                    chart = rememberCartesianChart(
+                        rememberLineCartesianLayer(),
+                        startAxis = rememberStartAxis(),
+                        bottomAxis = rememberBottomAxis(
+                            itemPlacer = remember {
+                                AxisItemPlacer.Horizontal.default(
+                                    spacing = 5,
+                                    shiftExtremeTicks = false,
+                                    addExtremeLabelPadding = false,
+                                )
+                            },
+                        ),
+                    ),
+                    modelProducer = modelProducer,
+                    modifier = Modifier.fillMaxWidth(),
+                    marker = marker,
+                    markerVisibilityListener = remember {
+                        object : CartesianMarkerVisibilityListener {
+                            override fun onHidden(marker: CartesianMarker) {
+                                onEvent(RoutePageScreenEvent.HideMapPoint)
+                            }
 
+                            override fun onShown(
+                                marker: CartesianMarker,
+                                targets: List<CartesianMarker.Target>,
+                            ) {
+                                onEvent(RoutePageScreenEvent.ShowMapPoint(targets.first().x.toDouble()))
+                            }
+                        }
+                    },
+                    runInitialAnimation = true,
+                    horizontalLayout = HorizontalLayout.fullWidth(),
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+                Button(onClick = {
+                    val intentUri = Uri.parse("https://www.strava.com/oauth/mobile/authorize")
+                        .buildUpon()
+                        .appendQueryParameter("client_id", "126680")
+                        .appendQueryParameter("redirect_uri", "strava://redirect")
+                        .appendQueryParameter("response_type", "code")
+                        .appendQueryParameter("approval_prompt", "auto")
+                        .appendQueryParameter("scope", "activity:write,read")
+                        .build()
+
+                    val intent = Intent(Intent.ACTION_VIEW, intentUri)
+                    context.startActivity(intent)
+                }) {
+                    Text(text = "Share route on Strava")
                 }
             }
         }

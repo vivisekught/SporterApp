@@ -2,7 +2,7 @@ package com.graduate.work.sporterapp.data.firebase.storage.mapper
 
 import com.graduate.work.sporterapp.data.firebase.storage.pojo.FirestoreRoutePojo
 import com.graduate.work.sporterapp.data.firebase.storage.pojo.RoutePoint
-import com.graduate.work.sporterapp.domain.firebase.storage.routes.entity.Route
+import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import com.mapbox.geojson.Point
 
 class RouteMapper {
