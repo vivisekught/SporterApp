@@ -1,7 +1,10 @@
 package com.graduate.work.sporterapp.domain.maps.mapbox.entity
 
+import android.os.Parcelable
 import com.mapbox.geojson.Point
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Route(
     val routeId: String = "",
     val name: String = "",
@@ -15,4 +18,4 @@ data class Route(
     val geometry: String? = null,
     val routeImgUrl: String? = null,
     val timeStamp: Long? = null,
-)
+) : Parcelable

@@ -27,11 +27,28 @@ sealed class AppNavigation {
         data object HomeMapScreen : Home("homeMap")
         data object ProfileScreen : Home("profile")
         data object RoutePageScreen : Home("routePage/{routeId}") {
-            const val routeIdArg = "routeId"
+            const val ROUTE_ID_ARG = "routeId"
             fun createRoutePageScreen(routeId: String) = "routePage/$routeId"
         }
+
+        data object TrackScreen : Workout("track/{routeId}") {
+            const val ROUTE_ID_ARG = "routeId"
+            fun createTrackScreen(routeId: String?) = "track/$routeId"
+        }
+
         companion object {
             const val HOME_FEATURE_SCREEN_ROUTE = "home"
+        }
+    }
+
+    sealed class Workout(val route: String) : AppNavigation() {
+        data object TrackScreen : Workout("track/{routeId}") {
+            const val ROUTE_ID_ARG = "routeId"
+            fun createTrackScreen(routeId: String?) = "track/$routeId"
+        }
+
+        companion object {
+            const val TRACK_FEATURE_SCREEN_ROUTE = "track"
         }
     }
 }

@@ -24,7 +24,7 @@ class UserLocationRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
 ) : UserLocationRepository {
     @SuppressLint("MissingPermission")
-    override fun getUserLocation(): Flow<LocationServiceResult> = callbackFlow {
+    override fun collectUserLocation(interval: Long?): Flow<LocationServiceResult> = callbackFlow {
         if (!context.isLocationPermissionGranted()) {
             trySend(LocationServiceResult.Failure(LocationServiceResult.FailureReason.PERMISSION_IS_DENIED))
             close()
@@ -47,7 +47,7 @@ class UserLocationRepositoryImpl @Inject constructor(
         val request = LocationProviderRequest.Builder()
             .interval(
                 IntervalSettings.Builder()
-                    .interval(INTERVAL)
+                    .interval(interval ?: DEFAULT_INTERVAL)
                     .minimumInterval(MINIMUM_INTERVAL)
                     .maximumInterval(MAX_INTERVAL)
                     .build()
@@ -74,7 +74,7 @@ class UserLocationRepositoryImpl @Inject constructor(
     }
 
     companion object {
-        private const val INTERVAL: Long = 2000
+        private const val DEFAULT_INTERVAL: Long = 2000
         private const val MINIMUM_INTERVAL: Long = 1000
         private const val MAX_INTERVAL: Long = 5000
         private const val DISPLACEMENT: Float = 5F

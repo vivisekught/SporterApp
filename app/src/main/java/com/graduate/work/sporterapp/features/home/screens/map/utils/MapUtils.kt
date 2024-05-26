@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.features.home.screens.map.utils
+package com.graduate.work.sporterapp.features.home.screens.route_builder.utils
 
 import android.Manifest
 import com.mapbox.geojson.Point

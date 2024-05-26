@@ -63,4 +63,9 @@
     <string name="export_gpx">Export gpx</string>
     <string name="route_not_found">Route not found</string>
     <string name="gpx_export_error">Gpx export error</string>
+    <string name="start_a_workout_with_a_route">Start a workout with a route</string>
+    <string name="location_disabled">Location disable</string>
+    <string name="location_permission_denied">Location permission denied</string>
+    <string name="tracking_your_workout">Tracking your workout</string>
+    <string name="started">Started</string>
 </resources>

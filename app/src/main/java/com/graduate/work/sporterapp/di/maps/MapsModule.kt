@@ -4,11 +4,9 @@ import android.content.Context
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.graduate.work.sporterapp.R
-import com.graduate.work.sporterapp.data.maps.gpx.GpxFileRepositoryImpl
 import com.graduate.work.sporterapp.data.maps.location.UserLocationRepositoryImpl
 import com.graduate.work.sporterapp.data.maps.mapbox.MapboxApiRepositoryImpl
 import com.graduate.work.sporterapp.di.maps.annotations.MapboxPublicToken
-import com.graduate.work.sporterapp.domain.maps.gpx.GpxFileRepository
 import com.graduate.work.sporterapp.domain.maps.location.UserLocationRepository
 import com.graduate.work.sporterapp.domain.maps.mapbox.MapboxApiRepository
 import dagger.Binds
@@ -27,9 +25,6 @@ interface MapsModule {
 
     @Binds
     fun bindMapboxDirectionsRepository(impl: MapboxApiRepositoryImpl): MapboxApiRepository
-
-    @Binds
-    fun bindGpxFileRepository(impl: GpxFileRepositoryImpl): GpxFileRepository
 
     companion object {
         @Provides

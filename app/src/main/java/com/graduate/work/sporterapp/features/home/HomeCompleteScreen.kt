@@ -31,8 +31,8 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.core.snackbar.ProvideSnackbarController
-import com.graduate.work.sporterapp.features.home.screens.map.route_builder.RouteBuilderCompleteScreen
 import com.graduate.work.sporterapp.features.home.screens.profile.ProfileScreen
+import com.graduate.work.sporterapp.features.home.screens.route_builder.RouteBuilderCompleteScreen
 import com.graduate.work.sporterapp.features.home.screens.saved_route_page.screen.RoutePageScreenCompleteScreen
 import com.graduate.work.sporterapp.features.home.screens.saved_routes.screens.SavedRoutesScreen
 import com.graduate.work.sporterapp.navigation.AppNavigation
@@ -44,7 +44,7 @@ data class BottomNavItem(
 )
 
 @Composable
-fun HomeCompleteScreen() {
+fun HomeCompleteScreen(navigateToTrackScreen: (String?) -> Unit) {
     val bottomNavController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -81,7 +81,13 @@ fun HomeCompleteScreen() {
                 composable(AppNavigation.Home.HomeMapScreen.route) {
                     RouteBuilderCompleteScreen(snackbarHostState)
                 }
-                composable(AppNavigation.Home.SavedRoutesScreen.route) {
+                composable(
+                    AppNavigation.Home.SavedRoutesScreen.route, deepLinks = listOf(
+                        navDeepLink {
+                            uriPattern = "strava://redirect?code={code}"
+                        })
+                ) { backStackEntry ->
+                    val stravaRedirectCode = backStackEntry.arguments?.getString("code")
                     SavedRoutesScreen(snackbarHostState) { routeId ->
                         bottomNavController.navigate(
                             AppNavigation.Home.RoutePageScreen.createRoutePageScreen(
@@ -90,27 +96,27 @@ fun HomeCompleteScreen() {
                         )
                     }
                 }
-                composable(
-                    AppNavigation.Home.ProfileScreen.route,
-                    deepLinks = listOf(navDeepLink {
-                        uriPattern = "https://graduteworksporterapp.com"
-                    })
-                ) {
+                composable(AppNavigation.Home.ProfileScreen.route) {
                     ProfileScreen()
                 }
                 composable(AppNavigation.Home.RoutePageScreen.route, arguments = listOf(
                     navArgument(
-                        name = AppNavigation.Home.RoutePageScreen.routeIdArg,
+                        name = AppNavigation.Home.RoutePageScreen.ROUTE_ID_ARG,
                     ) {
                         type = NavType.StringType
                     }
                 )) { backStackEntry ->
                     val routeId =
-                        backStackEntry.arguments?.getString(AppNavigation.Home.RoutePageScreen.routeIdArg)
+                        backStackEntry.arguments?.getString(AppNavigation.Home.RoutePageScreen.ROUTE_ID_ARG)
                     routeId?.let {
-                        RoutePageScreenCompleteScreen(snackbarHostState, routeId) {
-                            bottomNavController.popBackStack()
-                        }
+                        RoutePageScreenCompleteScreen(
+                            snackbarHostState = snackbarHostState,
+                            routeId = routeId,
+                            startWorkout = {
+                                navigateToTrackScreen(it)
+                            }, onBack = {
+                                bottomNavController.popBackStack()
+                            })
                     }
                 }
             }

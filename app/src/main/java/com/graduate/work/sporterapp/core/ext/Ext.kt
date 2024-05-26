@@ -2,15 +2,25 @@ package com.graduate.work.sporterapp.core.ext
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.location.Location
+import android.os.Build.VERSION.SDK_INT
+import android.os.Parcelable
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.mapbox.core.constants.Constants
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -60,6 +70,7 @@ fun Int.getAlphabetLetterByIndex(): String {
 
 fun Double?.metersToKms(): Double = ((this ?: 0.0) / 1000).roundTo2()
 
+@SuppressLint("DefaultLocale")
 fun Double?.parseSeconds(): String {
     if (this == null) return "0:00"
     val hours = this / 3600
@@ -96,3 +107,50 @@ fun Long?.getDateTime(): String {
 }
 
 fun List<Double>.closestValue(value: Double) = minBy { abs(value - it) }
+
+suspend fun File.createFile(header: String, name: String, segments: String, footer: String) =
+    try {
+        withContext(Dispatchers.IO) {
+            FileWriter(this@createFile, false).apply {
+                append(header)
+                append(name)
+                append(segments)
+                append(footer)
+                flush()
+                close()
+            }
+            true
+        }
+    } catch (e: IOException) {
+        false
+    }
+
+fun createFileIntent(context: Context, fileName: String, fileExportType: String): Intent? {
+    return try {
+        val file = File(context.filesDir, fileName)
+        if (file.exists()) {
+            val uri =
+                FileProvider.getUriForFile(context, context.packageName + ".provider", file)
+            Intent(Intent.ACTION_SEND).run {
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                type = fileExportType
+                putExtra(Intent.EXTRA_STREAM, uri)
+                setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        } else {
+            null
+        }
+    } catch (e: java.lang.Exception) {
+        null
+    }
+}
+
+fun Int.padTimerValue() = this.toString().padStart(2, '0')
+fun Long.padTimerValue() = this.toString().padStart(2, '0')
+
+inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
+    SDK_INT >= 33 -> getParcelableExtra(key, T::class.java)
+    else -> @Suppress("DEPRECATION") getParcelableExtra(key) as? T
+}
+
+fun Float.convertMetersPerSecondToKilometersPerHour(): Float = this * 3.6f

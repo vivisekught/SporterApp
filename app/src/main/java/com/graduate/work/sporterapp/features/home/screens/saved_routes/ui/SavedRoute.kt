@@ -25,7 +25,7 @@ import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.graduate.work.sporterapp.core.ext.getDateTime
 import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
-import com.graduate.work.sporterapp.features.home.screens.map.route_builder.ui.RouteMetrics
+import com.graduate.work.sporterapp.features.home.screens.route_builder.ui.RouteMetrics
 
 @Composable
 fun SavedRoute(modifier: Modifier = Modifier, route: Route, onClick: () -> Unit) {

@@ -34,9 +34,10 @@ class MapboxApiRepositoryImpl @Inject constructor(
                 .accessToken(publicToken)
                 .routeOptions(
                     RouteOptions.builder()
-                        .geometries("polyline")
+                        .geometries(DirectionsCriteria.GEOMETRY_POLYLINE)
                         .coordinates(coordinates.toDirectionsString())
                         .profile(DirectionsCriteria.PROFILE_CYCLING)
+                        .overview(DirectionsCriteria.OVERVIEW_FULL)
                         .build()
                 ).build()
             client?.enqueueCall(object : retrofit2.Callback<DirectionsResponse> {
@@ -93,26 +94,41 @@ class MapboxApiRepositoryImpl @Inject constructor(
             .styleId(styleId)
             .staticMarkerAnnotations(
                 listOf(
-                    StaticMarkerAnnotation.builder().label("a").color("cadcfc").lnglat(startPoint)
+                    StaticMarkerAnnotation
+                        .builder()
+                        .label(FIRST_ROUTE_POINT_MARKER_LABEL)
+                        .color(ROUTE_LINE_COLOR)
+                        .lnglat(startPoint)
                         .build(),
-                    StaticMarkerAnnotation.builder().label("b").color("cadcfc").lnglat(endPoint)
+                    StaticMarkerAnnotation
+                        .builder()
+                        .label(LAST_ROUTE_POINT_MARKER_LABEL)
+                        .color(ROUTE_LINE_COLOR)
+                        .lnglat(endPoint)
                         .build(),
                 )
             )
             .staticPolylineAnnotations(
                 listOf(
                     geometry?.let {
-                        StaticPolylineAnnotation.builder().fillColor("00246b").strokeWidth(7.0)
+                        StaticPolylineAnnotation.builder().fillColor("00246b").strokeWidth(5.0)
                             .polyline(geometry)
                             .build()
                     }
                 )
             )
             .cameraAuto(true)
-            .width(320)
-            .height(320)
+            .width(STATIC_MAP_SIZE)
+            .height(STATIC_MAP_SIZE)
             .retina(true)
             .build()
         return staticImage.url().toUrl()
+    }
+
+    companion object {
+        const val FIRST_ROUTE_POINT_MARKER_LABEL = "a"
+        const val LAST_ROUTE_POINT_MARKER_LABEL = "b"
+        const val ROUTE_LINE_COLOR = "cadcfc"
+        const val STATIC_MAP_SIZE = 420
     }
 }

@@ -5,5 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface UserLocationRepository {
 
-    fun getUserLocation(): Flow<LocationServiceResult>
+    fun collectUserLocation(interval: Long? = null): Flow<LocationServiceResult>
 }
