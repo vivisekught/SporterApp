@@ -1,6 +1,7 @@
 package com.graduate.work.sporterapp.features.home.screens.saved_route_page.vm
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -56,10 +57,10 @@ class RoutePageViewModel @AssistedInject constructor(
 
     }
 
-    fun exportRouteAsGpx() {
+    fun exportWorkoutAsGpx() {
         state.route?.let { route ->
             viewModelScope.launch {
-                val intent = getTcxFileIntentUseCase(route)
+                val intent = getGpxFileIntentUseCase(route)
                 state = if (intent != null) {
                     state.copy(routeFileIntent = intent)
                 } else {
@@ -71,10 +72,10 @@ class RoutePageViewModel @AssistedInject constructor(
         }
     }
 
-    fun exportRouteAsTcx() {
+    fun exportWorkoutAsTcx() {
         state.route?.let { route ->
             viewModelScope.launch {
-                val intent = getGpxFileIntentUseCase(route)
+                val intent = getTcxFileIntentUseCase(route)
                 state = if (intent != null) {
                     state.copy(routeFileIntent = intent)
                 } else {
@@ -94,9 +95,10 @@ class RoutePageViewModel @AssistedInject constructor(
     }
 
     private fun onGetRouteSuccess(route: Route) {
-        val elevationsProfileY = route.points?.map { it.altitude() }
+        Log.d("AAAAAA", ": $route")
+        val elevationsProfileY = route.points.map { it.altitude() }
         var distance = 0.0
-        val elevationsProfileX = route.points?.mapIndexed { index, point ->
+        val elevationsProfileX = route.points.mapIndexed { index, point ->
             if (index > 0) {
                 distance += TurfMeasurement.distance(route.points[index - 1], point)
             }

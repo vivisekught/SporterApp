@@ -1,5 +1,6 @@
 package com.graduate.work.sporterapp.data.firebase.storage.route
 
+import android.util.Log
 import com.google.firebase.firestore.DocumentChange.Type.REMOVED
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -29,9 +30,9 @@ class CloudStorageRouteRepositoryImpl @Inject constructor(
                 onError(error)
                 return@addSnapshotListener
             }
-
             value?.documentChanges?.forEach {
                 val wasDocumentDeleted = it.type == REMOVED
+                Log.d("AAAAAA", "data was deleted: $wasDocumentDeleted")
                 val firestoreRoutePojo =
                     it.document.toObject<FirestoreRoutePojo>().copy(routeId = it.document.id)
                 val route = routeMapper.mapFirestorePojoToEntity(firestoreRoutePojo)

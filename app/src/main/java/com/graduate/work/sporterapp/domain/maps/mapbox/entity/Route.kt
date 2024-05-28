@@ -10,7 +10,7 @@ data class Route(
     val name: String = "",
     val description: String = "",
     val userId: String? = null,
-    val points: List<Point>? = null,
+    val points: List<Point> = emptyList(),
     val distance: Double? = null,
     val duration: Double? = null,
     val climb: Double? = null,

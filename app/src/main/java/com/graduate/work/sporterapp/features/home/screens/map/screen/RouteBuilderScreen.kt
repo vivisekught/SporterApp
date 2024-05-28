@@ -64,9 +64,9 @@ import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.core.ext.getAlphabetLetterByIndex
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
 import com.graduate.work.sporterapp.core.snackbar.SnackbarMessageHandler
+import com.graduate.work.sporterapp.features.home.screens.map.ui.RouteMetrics
 import com.graduate.work.sporterapp.features.home.screens.route_builder.ui.LocationDisableAlertDialog
 import com.graduate.work.sporterapp.features.home.screens.route_builder.ui.NewPointView
-import com.graduate.work.sporterapp.features.home.screens.route_builder.ui.RouteMetrics
 import com.graduate.work.sporterapp.features.home.screens.route_builder.ui.menu.RouteBuilderDropDownMenu
 import com.graduate.work.sporterapp.features.home.screens.route_builder.ui.menu.RouteBuilderDropDownMenuState
 import com.graduate.work.sporterapp.features.home.screens.route_builder.ui.points_list.RouteInfoPanel

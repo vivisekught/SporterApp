@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
                             startDestination = if (authState?.isEmailVerified == true) {
                                 AppNavigation.Home.HOME_FEATURE_SCREEN_ROUTE
                             } else {
-                                if (trackingService.isTracking) {
+                                if (trackingService.isWorkoutStarted) {
                                     AppNavigation.Workout.TRACK_FEATURE_SCREEN_ROUTE
                                 } else {
                                     AppNavigation.Auth.AUTH_FEATURE_SCREEN_ROUTE

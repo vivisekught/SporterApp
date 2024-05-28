@@ -68,4 +68,6 @@
     <string name="location_permission_denied">Location permission denied</string>
     <string name="tracking_your_workout">Tracking your workout</string>
     <string name="started">Started</string>
+    <string name="workouts">Workouts</string>
+    <string name="create_route">Create</string>
 </resources>

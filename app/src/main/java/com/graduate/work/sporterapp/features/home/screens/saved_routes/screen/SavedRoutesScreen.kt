@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.features.home.screens.saved_routes.screens
+package com.graduate.work.sporterapp.features.home.screens.saved_routes.screen
 
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
@@ -58,11 +58,6 @@ fun SavedRoutesScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-//            if (viewModel.routes.isEmpty()){
-//                Text(text = "No saved routes", modifier = Modifier.constrainAs(createRef()){
-//                    centerTo(parent)
-//                })
-//            } else {
             LazyColumn(Modifier.fillMaxSize()) {
                 items(viewModel.routes.values.toList(), key = { it.routeId }) { route ->
                     HorizontalDivider(
@@ -78,7 +73,6 @@ fun SavedRoutesScreen(
                     }
                 }
             }
-//            }
         }
     }
 }

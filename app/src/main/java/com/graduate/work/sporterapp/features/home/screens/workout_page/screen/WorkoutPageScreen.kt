@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.features.home.screens.saved_route_page.screen
+package com.graduate.work.sporterapp.features.home.screens.workout_page.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -111,7 +111,7 @@ fun RoutePageScreenCompleteScreen(
                 viewModel.showMapPoint(it.distance)
             }
 
-            RoutePageScreenEvent.StartWorkoutWithRoute -> {
+            RoutePageScreenEvent.ExportWorkoutToStrava -> {
                 startWorkout()
             }
         }
@@ -125,7 +125,7 @@ sealed class RoutePageScreenEvent {
     data class ShowMapPoint(val distance: Double) : RoutePageScreenEvent()
     data object HideMapPoint : RoutePageScreenEvent()
     data object DismissSnackbar : RoutePageScreenEvent()
-    data object StartWorkoutWithRoute : RoutePageScreenEvent()
+    data object ExportWorkoutToStrava : RoutePageScreenEvent()
     data object Delete : RoutePageScreenEvent()
 }
 
@@ -136,7 +136,7 @@ fun RoutePageScreen(
     uiState: RoutePageState,
     onEvent: (RoutePageScreenEvent) -> Unit,
 ) {
-    var isDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var isRouteDialogOpen by rememberSaveable { mutableStateOf(false) }
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
@@ -153,7 +153,7 @@ fun RoutePageScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { isDialogOpen = true }) {
+                    IconButton(onClick = { isRouteDialogOpen = true }) {
                         Icon(
                             imageVector = Icons.Default.IosShare,
                             contentDescription = stringResource(R.string.export_gpx),
@@ -282,15 +282,15 @@ fun RoutePageScreen(
             )
             Spacer(modifier = Modifier.height(32.dp))
             Button(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
-                onEvent(RoutePageScreenEvent.StartWorkoutWithRoute)
+                onEvent(RoutePageScreenEvent.ExportWorkoutToStrava)
             }) {
                 Text(text = stringResource(R.string.start_a_workout_with_a_route))
             }
         }
-        if (isDialogOpen) {
+        if (isRouteDialogOpen) {
             AlertDialog(
                 icon = {
-                    Icon(Icons.Default.Map, contentDescription = "Export workout")
+                    Icon(Icons.Default.Map, contentDescription = "Export Route")
                 },
                 title = {
                     Text(text = "Export Route")
@@ -299,13 +299,13 @@ fun RoutePageScreen(
                     Text(text = "Choose route file format")
                 },
                 onDismissRequest = {
-                    isDialogOpen = false
+                    isRouteDialogOpen = false
                 },
                 confirmButton = {
                     TextButton(
                         onClick = {
                             onEvent(RoutePageScreenEvent.ExportAsGpx)
-                            isDialogOpen = false
+                            isRouteDialogOpen = false
                         }
                     ) {
                         Text("Export as GPX")
@@ -313,7 +313,7 @@ fun RoutePageScreen(
                     TextButton(
                         onClick = {
                             onEvent(RoutePageScreenEvent.ExportAsTcx)
-                            isDialogOpen = false
+                            isRouteDialogOpen = false
                         }
                     ) {
                         Text("Export as TCX")
@@ -322,7 +322,7 @@ fun RoutePageScreen(
                 dismissButton = {
                     TextButton(
                         onClick = {
-                            isDialogOpen = false
+                            isRouteDialogOpen = false
                         }
                     ) {
                         Text("Cancel")

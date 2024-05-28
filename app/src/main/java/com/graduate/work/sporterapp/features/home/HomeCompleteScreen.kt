@@ -5,9 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.automirrored.filled.DirectionsBike
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Route
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -34,7 +35,8 @@ import com.graduate.work.sporterapp.core.snackbar.ProvideSnackbarController
 import com.graduate.work.sporterapp.features.home.screens.profile.ProfileScreen
 import com.graduate.work.sporterapp.features.home.screens.route_builder.RouteBuilderCompleteScreen
 import com.graduate.work.sporterapp.features.home.screens.saved_route_page.screen.RoutePageScreenCompleteScreen
-import com.graduate.work.sporterapp.features.home.screens.saved_routes.screens.SavedRoutesScreen
+import com.graduate.work.sporterapp.features.home.screens.saved_routes.screen.SavedRoutesScreen
+import com.graduate.work.sporterapp.features.home.screens.workouts.screen.WorkoutsScreen
 import com.graduate.work.sporterapp.navigation.AppNavigation
 
 data class BottomNavItem(
@@ -50,14 +52,19 @@ fun HomeCompleteScreen(navigateToTrackScreen: (String?) -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     val listOfScreens = listOf(
         BottomNavItem(
+            screenNameId = R.string.workouts,
+            selectedIcon = Icons.AutoMirrored.Filled.DirectionsBike,
+            route = AppNavigation.Home.WorkoutsScreen.route
+        ),
+        BottomNavItem(
             screenNameId = R.string.saved_routes,
-            selectedIcon = Icons.Filled.Bookmark,
+            selectedIcon = Icons.Filled.Route,
             route = AppNavigation.Home.SavedRoutesScreen.route
         ),
         BottomNavItem(
-            screenNameId = R.string.home,
-            selectedIcon = Icons.Filled.Home,
-            route = AppNavigation.Home.HomeMapScreen.route
+            screenNameId = R.string.create_route,
+            selectedIcon = Icons.Filled.Create,
+            route = AppNavigation.Home.CreateRouteScreen.route
         ),
         BottomNavItem(
             screenNameId = R.string.profile,
@@ -75,11 +82,14 @@ fun HomeCompleteScreen(navigateToTrackScreen: (String?) -> Unit) {
         ) {
             NavHost(
                 navController = bottomNavController,
-                startDestination = AppNavigation.Home.SavedRoutesScreen.route,
+                startDestination = AppNavigation.Home.WorkoutsScreen.route,
                 modifier = Modifier.weight(1f)
             ) {
-                composable(AppNavigation.Home.HomeMapScreen.route) {
+                composable(AppNavigation.Home.CreateRouteScreen.route) {
                     RouteBuilderCompleteScreen(snackbarHostState)
+                }
+                composable(AppNavigation.Home.WorkoutsScreen.route) {
+                    WorkoutsScreen(snackbarHostState = snackbarHostState, navToWorkoutPage = {})
                 }
                 composable(
                     AppNavigation.Home.SavedRoutesScreen.route, deepLinks = listOf(

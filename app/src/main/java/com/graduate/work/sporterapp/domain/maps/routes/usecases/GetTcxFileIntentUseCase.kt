@@ -3,7 +3,7 @@ package com.graduate.work.sporterapp.domain.maps.routes.usecases
 import android.content.Context
 import android.content.Intent
 import com.graduate.work.sporterapp.core.ext.createFileIntent
-import com.graduate.work.sporterapp.data.maps.routes.TcxFileService
+import com.graduate.work.sporterapp.data.maps.files.TcxFileService
 import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject

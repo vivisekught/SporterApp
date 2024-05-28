@@ -24,16 +24,12 @@ sealed class AppNavigation {
 
     sealed class Home(val route: String) : AppNavigation() {
         data object SavedRoutesScreen : Home("savedRoute")
-        data object HomeMapScreen : Home("homeMap")
+        data object WorkoutsScreen : Home("workout")
+        data object CreateRouteScreen : Home("createRoute")
         data object ProfileScreen : Home("profile")
         data object RoutePageScreen : Home("routePage/{routeId}") {
             const val ROUTE_ID_ARG = "routeId"
             fun createRoutePageScreen(routeId: String) = "routePage/$routeId"
-        }
-
-        data object TrackScreen : Workout("track/{routeId}") {
-            const val ROUTE_ID_ARG = "routeId"
-            fun createTrackScreen(routeId: String?) = "track/$routeId"
         }
 
         companion object {

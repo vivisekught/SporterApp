@@ -14,8 +14,8 @@ class GetStaticMapUrlUseCase @Inject constructor(
         route: Route,
         style: MapBoxStyle?,
     ): String {
-        val startPoint = route.points?.first()
-        val endPoint = route.points?.last()
+        val startPoint = route.points.first()
+        val endPoint = route.points.last()
         val geometry = route.geometry
         return mapboxApiRepository.getStaticMapUrl(
             startPoint,
@@ -29,18 +29,19 @@ class GetStaticMapUrlUseCase @Inject constructor(
         workout: Workout,
         style: MapBoxStyle?,
     ): String {
-        val startPoint = workout.points.first().point
-        val endPoint = workout.points.last().point
-        val points = workout.points.map { workoutPoint ->
+        val startPoint = workout.points?.first()?.point
+        val endPoint = workout.points?.last()?.point
+        val points = workout.points?.map { workoutPoint ->
             workoutPoint.point
         }
-        val geometry = PolylineUtils.encode(points, 5)
-        val l = mapboxApiRepository.getStaticMapUrl(
-            startPoint,
-            endPoint,
-            geometry,
-            style ?: MapBoxStyle.STREET
-        ).toString()
-        return l
+        return points?.let {
+            val geometry = PolylineUtils.encode(points, 5)
+            mapboxApiRepository.getStaticMapUrl(
+                startPoint,
+                endPoint,
+                geometry,
+                style ?: MapBoxStyle.STREET
+            ).toString()
+        } ?: ""
     }
 }

@@ -13,7 +13,8 @@ class RouteMapper {
         name = entity.name,
         description = entity.description,
         userId = entity.userId,
-        points = entity.points?.map { Point.fromLngLat(it.lng, it.lat, it.altitude) },
+        points = entity.points?.map { Point.fromLngLat(it.lng, it.lat, it.altitude) }
+            ?: emptyList(),
         distance = entity.distance,
         duration = entity.duration,
         climb = entity.climb,
@@ -28,7 +29,7 @@ class RouteMapper {
         name = route.name,
         description = route.description,
         userId = route.userId,
-        points = route.points?.map {
+        points = route.points.map {
             RoutePoint(
                 lat = it.latitude(),
                 lng = it.longitude(),

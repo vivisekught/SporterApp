@@ -53,7 +53,8 @@ class MapboxApiRepositoryImpl @Inject constructor(
                         val route = response.body()?.routes()?.get(0)
                         val distance = route?.distance() ?: 0.0
                         val duration = route?.duration() ?: 0.0
-                        val polylineWithoutElevation = route?.geometry()?.getCoordinates()
+                        val polylineWithoutElevation =
+                            route?.geometry()?.getCoordinates() ?: emptyList()
                         val geometry = route?.geometry()
                         val mapRoute = Route(
                             distance = distance,

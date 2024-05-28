@@ -1,5 +1,6 @@
 package com.graduate.work.sporterapp.features.track
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
@@ -23,6 +24,7 @@ fun TrackCompleteScreen(
     LaunchedEffect(Unit) {
         with(context) {
             vm.getRoute { route ->
+                Log.d("AAAAAA", "Route: $route")
                 if (route == null || route.routeId.isEmpty()) return@getRoute
                 val intent = TrackingUserWorkoutService.createRouteIntent(this, route)
                 startService(intent)
@@ -42,7 +44,7 @@ fun TrackCompleteScreen(
 
             is TrackScreenEvent.StopWorkout -> {
                 if (trackingService.points.isEmpty() || trackingService.points.size < 2) {
-                    vm.workoutSavedError("Very short workout")
+                    onBack()
                     return@TrackScreen
                 }
                 trackingService.saveWorkout(it.name) {

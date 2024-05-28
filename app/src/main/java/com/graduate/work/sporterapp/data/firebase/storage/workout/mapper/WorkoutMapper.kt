@@ -13,7 +13,7 @@ class WorkoutMapper {
             workoutId = pojo.workoutId,
             name = pojo.name,
             userId = pojo.userId,
-            points = pojo.points.map {
+            points = pojo.points?.map {
                 WorkoutRoutePoint(
                     point = Point.fromLngLat(it.lng, it.lat, it.altitude),
                     distanceFromStart = it.distanceFromStart,
@@ -37,7 +37,7 @@ class WorkoutMapper {
         workoutId = workout.workoutId,
         name = workout.name,
         userId = workout.userId,
-        points = workout.points.map {
+        points = workout.points?.map {
             WorkoutFirestoreRoutePoint(
                 lat = it.point.latitude(),
                 lng = it.point.longitude(),

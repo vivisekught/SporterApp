@@ -243,7 +243,11 @@ fun TrackScreen(
                 )
             }
             IconButton(onClick = {
-                isStopWorkoutDialogOpen = true
+                if (!trackingService.isWorkoutStarted) {
+                    onEvent(TrackScreenEvent.OnBack)
+                } else {
+                    isStopWorkoutDialogOpen = true
+                }
             }) {
                 Icon(
                     Icons.Default.Stop,

@@ -1,9 +1,7 @@
-package com.graduate.work.sporterapp.features.home.screens.saved_routes.ui
+package com.graduate.work.sporterapp.features.home.screens.workouts.ui
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,8 +11,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterVertically
-import androidx.compose.ui.Alignment.Companion.End
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -24,11 +20,10 @@ import androidx.constraintlayout.compose.Dimension
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.graduate.work.sporterapp.core.ext.getDateTime
-import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
-import com.graduate.work.sporterapp.features.home.screens.map.ui.RouteMetrics
+import com.graduate.work.sporterapp.domain.firebase.storage.workout.entity.Workout
 
 @Composable
-fun SavedRoute(modifier: Modifier = Modifier, route: Route, onClick: () -> Unit) {
+fun WorkoutLayout(modifier: Modifier = Modifier, workout: Workout, onClick: () -> Unit) {
     ConstraintLayout(
         modifier = modifier
             .fillMaxWidth()
@@ -40,7 +35,7 @@ fun SavedRoute(modifier: Modifier = Modifier, route: Route, onClick: () -> Unit)
         val (staticMapRef, nameRef, routeMetricsRef) = createRefs()
         SubcomposeAsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(route.routeImgUrl)
+                .data(workout.routeImgUrl)
                 .crossfade(true)
                 .build(),
             contentDescription = "Route image",
@@ -56,8 +51,11 @@ fun SavedRoute(modifier: Modifier = Modifier, route: Route, onClick: () -> Unit)
                 height = Dimension.ratio("1:1")
             }
         )
-        Column(
-            Modifier
+        Text(
+            text = workout.name,
+            style = MaterialTheme.typography.titleLarge,
+            maxLines = 3,
+            modifier = Modifier
                 .constrainAs(nameRef) {
                     top.linkTo(parent.top)
                     start.linkTo(staticMapRef.end)
@@ -65,38 +63,24 @@ fun SavedRoute(modifier: Modifier = Modifier, route: Route, onClick: () -> Unit)
                     width = Dimension.fillToConstraints
                 }
                 .padding(start = 12.dp)
-        ) {
-            Text(
-                text = route.name,
-                style = MaterialTheme.typography.titleLarge,
-                maxLines = 2
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = route.description,
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 2
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-        }
+        )
         Column(modifier = Modifier.constrainAs(routeMetricsRef) {
             top.linkTo(staticMapRef.bottom, margin = 8.dp)
             width = Dimension.fillToConstraints
             centerHorizontallyTo(parent)
         }) {
-            Row(
-                verticalAlignment = CenterVertically,
-                horizontalArrangement = Arrangement.Start,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                RouteMetrics(route)
+                WorkoutMetrics(workout)
             }
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = route.timeStamp.getDateTime(),
+                text = workout.timeStamp.getDateTime(),
                 style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.align(End)
+                modifier = Modifier.align(Alignment.End)
             )
         }
     }

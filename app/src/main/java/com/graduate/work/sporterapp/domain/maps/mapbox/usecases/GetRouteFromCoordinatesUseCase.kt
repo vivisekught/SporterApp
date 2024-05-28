@@ -20,7 +20,7 @@ class GetRouteFromCoordinatesUseCase @Inject constructor(
                 elevationApiRepository.getPointsWithElevationFromCoordinates(routeWithoutElevation?.points)
             val (climb, descent) = getClimbAndDescent(pointsWithElevation ?: emptyList())
             val routeWithElevation = routeWithoutElevation?.copy(
-                points = pointsWithElevation,
+                points = pointsWithElevation ?: emptyList(),
                 climb = climb,
                 descent = descent
             )

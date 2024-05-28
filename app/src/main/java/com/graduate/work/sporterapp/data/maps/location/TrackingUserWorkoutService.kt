@@ -8,7 +8,6 @@ import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -130,12 +129,11 @@ class TrackingUserWorkoutService : Service() {
             weight = 70,
             isMale = true
         )
-        Log.d("AAAAAA", "Calories: $calories")
         val workout = Workout(
             name = name,
             points = points,
             distance = distance,
-            duration = workoutDuration,
+            duration = workoutDuration.inWholeSeconds.toDouble(),
             avgSpeed = avgSpeed,
             maxSpeed = speed,
             climb = climb,
@@ -153,9 +151,9 @@ class TrackingUserWorkoutService : Service() {
         isMale: Boolean,
     ): Double {
         return if (isMale) {
-            ((age * 0.2017) + (weight * 0.09036) - (durationInMinutes * 0.6309) - 55.0969) * (durationInMinutes / 4.184)
+            ((age * 0.2017) + (weight * 0.09036) - (durationInMinutes * 0.6309) - 55.0969) * ((durationInMinutes + 1) / 4.184)
         } else {
-            ((age * 0.074) + (weight * 0.05741) - (durationInMinutes * 0.4472) - 20.4022) * (durationInMinutes / 4.184)
+            ((age * 0.074) + (weight * 0.05741) - (durationInMinutes * 0.4472) - 20.4022) * ((durationInMinutes + 1) / 4.184)
         }
     }
 
@@ -229,6 +227,7 @@ class TrackingUserWorkoutService : Service() {
     }
 
     private fun stopTracking() {
+        isWorkoutStarted = false
         isTracking = false
         stopTimer()
         notificationManager.cancel(NOTIFICATION_ID)
