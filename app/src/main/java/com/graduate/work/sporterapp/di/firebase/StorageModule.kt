@@ -7,7 +7,7 @@ import com.graduate.work.sporterapp.data.firebase.storage.route.ImageFirebaseSto
 import com.graduate.work.sporterapp.data.firebase.storage.workout.CloudStorageWorkoutRepositoryImpl
 import com.graduate.work.sporterapp.domain.firebase.storage.routes.CloudStorageRouteRepository
 import com.graduate.work.sporterapp.domain.firebase.storage.routes.ImageFirebaseStoreRepository
-import com.graduate.work.sporterapp.domain.firebase.storage.workout.CloudStorageWorkoutRepository
+import com.graduate.work.sporterapp.domain.firebase.storage.workouts.CloudStorageWorkoutRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

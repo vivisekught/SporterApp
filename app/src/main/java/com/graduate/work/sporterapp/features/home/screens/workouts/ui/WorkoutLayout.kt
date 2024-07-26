@@ -20,7 +20,7 @@ import androidx.constraintlayout.compose.Dimension
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.graduate.work.sporterapp.core.ext.getDateTime
-import com.graduate.work.sporterapp.domain.firebase.storage.workout.entity.Workout
+import com.graduate.work.sporterapp.domain.firebase.storage.workouts.entity.Workout
 
 @Composable
 fun WorkoutLayout(modifier: Modifier = Modifier, workout: Workout, onClick: () -> Unit) {

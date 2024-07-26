@@ -1,7 +1,7 @@
-package com.graduate.work.sporterapp.data.api
+package com.graduate.work.sporterapp.data.api.elevation
 
-import com.graduate.work.sporterapp.data.api.pojo.ElevationResponsePojo
-import com.graduate.work.sporterapp.data.api.services.ElevationService
+import com.graduate.work.sporterapp.data.api.elevation.pojo.ElevationResponsePojo
+import com.graduate.work.sporterapp.data.api.elevation.services.ElevationService
 import com.graduate.work.sporterapp.domain.api.ElevationApiRepository
 import com.mapbox.geojson.Point
 import retrofit2.Call
@@ -29,16 +29,20 @@ class ElevationApiRepositoryImpl @Inject constructor(
 
         val allPointsWithAltitude = mutableListOf<Point>()
 
+        // process first batch
         fun processBatch(batch: List<Point>) {
+            // get points without altitude
             val pointsWithoutAltitude: MutableMap<Int, Point> = mutableMapOf()
             batch.forEachIndexed { index, point ->
+                // filter points without altitude
                 if (!point.hasAltitude()) {
                     pointsWithoutAltitude[index] = point
                 }
             }
-
+            // get points with altitude
             if (pointsWithoutAltitude.isEmpty()) {
                 allPointsWithAltitude.addAll(batch)
+                // check if all points are processed
                 if (allPointsWithAltitude.size == pointsMutableList.size) {
                     continuation.resume(allPointsWithAltitude)
                 } else {
@@ -47,13 +51,16 @@ class ElevationApiRepositoryImpl @Inject constructor(
                 }
                 return
             }
-
+            // get points latitudes for api request
             val latitudes = pointsWithoutAltitude.values.map { it.latitude() }
+            // get points longitudes for api request
             val longitudes = pointsWithoutAltitude.values.map { it.longitude() }
+            // get points altitudes
             elevationService.getElevation(
                 latitudes = latitudes,
                 longitudes = longitudes
             ).enqueue(object : Callback<ElevationResponsePojo> {
+                // on success response
                 override fun onResponse(
                     call: Call<ElevationResponsePojo>,
                     response: Response<ElevationResponsePojo>,
@@ -79,6 +86,7 @@ class ElevationApiRepositoryImpl @Inject constructor(
                     }
                 }
 
+                // on failure
                 override fun onFailure(call: Call<ElevationResponsePojo>, t: Throwable) {
                     allPointsWithAltitude.addAll(pointsWithoutAltitude.values)
                     if (allPointsWithAltitude.size == pointsMutableList.size) {
@@ -90,7 +98,7 @@ class ElevationApiRepositoryImpl @Inject constructor(
                 }
             })
         }
-
+        // process first batch
         processBatch(batches.first())
     }
 }

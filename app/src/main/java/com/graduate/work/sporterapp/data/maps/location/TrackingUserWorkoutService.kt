@@ -21,9 +21,9 @@ import com.graduate.work.sporterapp.core.ext.roundTo2
 import com.graduate.work.sporterapp.core.ext.toPoint
 import com.graduate.work.sporterapp.core.map.LocationServiceResult
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
-import com.graduate.work.sporterapp.domain.firebase.storage.workout.entity.Workout
-import com.graduate.work.sporterapp.domain.firebase.storage.workout.entity.WorkoutRoutePoint
-import com.graduate.work.sporterapp.domain.firebase.storage.workout.usecases.SaveWorkoutInFirestoreUseCase
+import com.graduate.work.sporterapp.domain.firebase.storage.workouts.entity.Workout
+import com.graduate.work.sporterapp.domain.firebase.storage.workouts.entity.WorkoutRoutePoint
+import com.graduate.work.sporterapp.domain.firebase.storage.workouts.usecases.SaveWorkoutInFirestoreUseCase
 import com.graduate.work.sporterapp.domain.maps.location.usecases.CollectUserLocationUseCase
 import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import com.mapbox.turf.TurfMeasurement
@@ -38,6 +38,7 @@ import java.util.Date
 import java.util.Timer
 import javax.inject.Inject
 import kotlin.concurrent.fixedRateTimer
+import kotlin.math.abs
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -129,11 +130,17 @@ class TrackingUserWorkoutService : Service() {
             weight = 70,
             isMale = true
         )
+        val c1 = calculateBurnedCalories(
+            durationInMinutes = workoutDuration.inWholeMinutes.toDouble(),
+            age = 23,
+            weight = 0,
+            isMale = false
+        )
         val workout = Workout(
             name = name,
             points = points,
             distance = distance,
-            duration = workoutDuration.inWholeSeconds.toDouble(),
+            durationInSeconds = workoutDuration.inWholeSeconds.toDouble(),
             avgSpeed = avgSpeed,
             maxSpeed = speed,
             climb = climb,
@@ -143,7 +150,8 @@ class TrackingUserWorkoutService : Service() {
         )
         saveWorkoutInFirestoreUseCase(workout, MapBoxStyle.STREET, onResult)
     }
-
+    val avgHeartRate = 120
+    // https://tourdevines.com.au/blog/how-many-calories-does-cycling-burn/
     private fun calculateBurnedCalories(
         durationInMinutes: Double,
         age: Int,
@@ -151,9 +159,11 @@ class TrackingUserWorkoutService : Service() {
         isMale: Boolean,
     ): Double {
         return if (isMale) {
-            ((age * 0.2017) + (weight * 0.09036) - (durationInMinutes * 0.6309) - 55.0969) * ((durationInMinutes + 1) / 4.184)
+            // Calculate calories for men
+            abs(((age * 0.2017) + (weight * 0.09036) - (avgHeartRate * 0.6309) - 55.0969) * ((durationInMinutes + 1) / 4.184))
         } else {
-            ((age * 0.074) + (weight * 0.05741) - (durationInMinutes * 0.4472) - 20.4022) * ((durationInMinutes + 1) / 4.184)
+            // Calculate calories for women
+            abs(((age * 0.074) + (weight * 0.05741) - (avgHeartRate * 0.4472) - 20.4022) * ((durationInMinutes + 1) / 4.184))
         }
     }
 

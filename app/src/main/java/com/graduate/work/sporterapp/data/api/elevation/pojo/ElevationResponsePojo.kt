@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.data.api.pojo
+package com.graduate.work.sporterapp.data.api.elevation.pojo
 
 import com.google.gson.annotations.SerializedName
 

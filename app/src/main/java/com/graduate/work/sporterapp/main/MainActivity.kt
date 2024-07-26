@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -160,16 +161,25 @@ class MainActivity : ComponentActivity() {
                             ) {
                                 HomeCompleteScreen(
                                     navigateToTrackScreen = {
+                                        Log.d("AAAAAA", "navigateToTrackScreen: $it");
                                         navController.navigate(
-                                            AppNavigation.Workout.TrackScreen.createTrackScreen(
-                                                it
-                                            ), navOptions = navOptions {
+                                            AppNavigation.Workout.TrackScreen.createTrackScreen(it),
+                                            navOptions = navOptions {
                                                 popUpTo(AppNavigation.Home.HOME_FEATURE_SCREEN_ROUTE) {
                                                     inclusive = true
                                                 }
                                             })
                                     }
-                                )
+                                ) {
+                                    navController.navigate(
+                                        AppNavigation.Home.HOME_FEATURE_SCREEN_ROUTE,
+                                        navOptions = navOptions {
+                                            popUpTo(AppNavigation.Home.HOME_FEATURE_SCREEN_ROUTE) {
+                                                inclusive = true
+                                            }
+                                        }
+                                    )
+                                }
                             }
                         }
                     }

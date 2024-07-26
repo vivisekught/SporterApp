@@ -70,4 +70,5 @@
     <string name="started">Started</string>
     <string name="workouts">Workouts</string>
     <string name="create_route">Create</string>
+    <string name="export">Export</string>
 </resources>

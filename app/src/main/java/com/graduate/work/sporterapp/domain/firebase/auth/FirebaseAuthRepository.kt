@@ -22,4 +22,6 @@ interface FirebaseAuthRepository {
     suspend fun sendPasswordResetEmail(email: String): Response<Unit>
 
     fun getUserId(): String?
+
+    fun signOut()
 }

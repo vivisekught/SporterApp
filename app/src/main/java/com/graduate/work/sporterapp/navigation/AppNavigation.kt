@@ -27,9 +27,14 @@ sealed class AppNavigation {
         data object WorkoutsScreen : Home("workout")
         data object CreateRouteScreen : Home("createRoute")
         data object ProfileScreen : Home("profile")
+        data object RedirectStravaScreen : Home("redirectStrava")
         data object RoutePageScreen : Home("routePage/{routeId}") {
             const val ROUTE_ID_ARG = "routeId"
             fun createRoutePageScreen(routeId: String) = "routePage/$routeId"
+        }
+        data object WorkoutPageScreen : Home("workoutPage/{workoutId}") {
+            const val WORKOUT_ID_ARG = "workoutId"
+            fun createWorkoutPageScreen(workoutId: String) = "workoutPage/$workoutId"
         }
 
         companion object {

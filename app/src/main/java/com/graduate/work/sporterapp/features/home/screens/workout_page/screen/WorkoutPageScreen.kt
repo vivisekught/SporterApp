@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,7 @@ import androidx.compose.material.icons.filled.IosShare
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -39,20 +41,28 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.core.snackbar.SnackbarMessageHandler
+import com.graduate.work.sporterapp.core.ui.theme.AppTheme
 import com.graduate.work.sporterapp.features.home.screens.map.ui.RouteMetrics
 import com.graduate.work.sporterapp.features.home.screens.route_builder.utils.MapUtils.transitionToGeometry
 import com.graduate.work.sporterapp.features.home.screens.saved_route_page.ui.rememberMarker
 import com.graduate.work.sporterapp.features.home.screens.saved_route_page.vm.RoutePageState
 import com.graduate.work.sporterapp.features.home.screens.saved_route_page.vm.RoutePageViewModel
+import com.graduate.work.sporterapp.features.home.screens.workout_page.vm.WorkoutPageState
+import com.graduate.work.sporterapp.features.home.screens.workout_page.vm.WorkoutPageViewModel
+import com.graduate.work.sporterapp.features.home.screens.workouts.ui.WorkoutMetrics
 import com.mapbox.geojson.Point
 import com.mapbox.maps.MapboxExperimental
 import com.mapbox.maps.extension.compose.animation.viewport.rememberMapViewportState
@@ -71,17 +81,16 @@ import com.patrykandpatrick.vico.core.cartesian.marker.CartesianMarker
 import com.patrykandpatrick.vico.core.cartesian.marker.CartesianMarkerVisibilityListener
 
 @Composable
-fun RoutePageScreenCompleteScreen(
+fun WorkoutPageCompleteScreen(
     snackbarHostState: SnackbarHostState,
-    routeId: String,
+    workoutId: String,
     onBack: () -> Unit,
-    startWorkout: () -> Unit,
 ) {
     val viewModel =
-        hiltViewModel<RoutePageViewModel, RoutePageViewModel.RoutePageViewModelFactory> { factory ->
-            factory.create(routeId)
+        hiltViewModel<WorkoutPageViewModel, WorkoutPageViewModel.WorkoutPageViewModelFactory> { factory ->
+            factory.create(workoutId)
         }
-    RoutePageScreen(snackbarHostState, viewModel.state) {
+    WorkoutPageScreen(snackbarHostState, viewModel.state) {
         when (it) {
             RoutePageScreenEvent.Back -> {
                 onBack()
@@ -108,11 +117,11 @@ fun RoutePageScreenCompleteScreen(
             }
 
             is RoutePageScreenEvent.ShowMapPoint -> {
-                viewModel.showMapPoint(it.distance)
+//                viewModel.showMapPoint(it.distance)
             }
 
             RoutePageScreenEvent.ExportWorkoutToStrava -> {
-                startWorkout()
+                viewModel.exportWorkoutToStrava()
             }
         }
     }
@@ -131,18 +140,18 @@ sealed class RoutePageScreenEvent {
 
 @OptIn(ExperimentalMaterial3Api::class, MapboxExperimental::class)
 @Composable
-fun RoutePageScreen(
+fun WorkoutPageScreen(
     snackbarHostState: SnackbarHostState,
-    uiState: RoutePageState,
+    uiState: WorkoutPageState,
     onEvent: (RoutePageScreenEvent) -> Unit,
 ) {
-    var isRouteDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var isWorkoutDialogOpen by rememberSaveable { mutableStateOf(false) }
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = uiState.route?.name ?: "Route")
+                    Text(text = "Workout")
                 },
                 navigationIcon = {
                     IconButton(onClick = { onEvent(RoutePageScreenEvent.Back) }) {
@@ -153,10 +162,10 @@ fun RoutePageScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { isRouteDialogOpen = true }) {
+                    IconButton(onClick = { isWorkoutDialogOpen = true }) {
                         Icon(
                             imageVector = Icons.Default.IosShare,
-                            contentDescription = stringResource(R.string.export_gpx),
+                            contentDescription = stringResource(R.string.export),
                         )
                     }
                 }
@@ -165,35 +174,33 @@ fun RoutePageScreen(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(NavigationBarDefaults.windowInsets)
     ) { innerPadding ->
         val context = LocalContext.current
-        val modelProducer = remember { CartesianChartModelProducer.build() }
+        val modelElevationProducer = remember { CartesianChartModelProducer.build() }
+        val modelSpeedProducer = remember { CartesianChartModelProducer.build() }
         val marker = rememberMarker()
-        val mapViewportState = rememberMapViewportState {
-            setCameraOptions {
-                center(Point.fromLngLat(0.0, 0.0))
-                zoom(0.0)
-                pitch(0.0)
-            }
-            MapAnimationOptions.mapAnimationOptions {
-                duration(3000)
+        LaunchedEffect(uiState.workoutFileIntent) {
+            if (uiState.workoutFileIntent != null) {
+                context.startActivity(uiState.workoutFileIntent)
             }
         }
-        LaunchedEffect(uiState.routeFileIntent) {
-            if (uiState.routeFileIntent != null) {
-                context.startActivity(uiState.routeFileIntent)
-            }
-        }
-        LaunchedEffect(uiState.route) {
-            uiState.route?.points?.let { points ->
-                mapViewportState.transitionToGeometry(points, padding = 50.0)
-            }
-        }
-        LaunchedEffect(uiState.elevationProfile) {
-            if (uiState.elevationProfile?.x != null && uiState.elevationProfile.y != null) {
-                modelProducer.tryRunTransaction {
+        LaunchedEffect(uiState.graphElevationProfile) {
+            if (uiState.graphElevationProfile?.x != null && uiState.graphElevationProfile.y != null) {
+                modelElevationProducer.tryRunTransaction {
                     lineSeries {
                         series(
-                            x = uiState.elevationProfile.x,
-                            y = uiState.elevationProfile.y
+                            x = uiState.graphElevationProfile.x,
+                            y = uiState.graphElevationProfile.y
+                        )
+                    }
+                }
+            }
+        }
+        LaunchedEffect(uiState.graphSpeedProfile) {
+            if (uiState.graphSpeedProfile?.x != null && uiState.graphSpeedProfile.y != null) {
+                modelSpeedProducer.tryRunTransaction {
+                    lineSeries {
+                        series(
+                            x = uiState.graphSpeedProfile.x,
+                            y = uiState.graphSpeedProfile.y
                         )
                     }
                 }
@@ -211,7 +218,7 @@ fun RoutePageScreen(
         ) {
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(uiState.route?.routeImgUrl)
+                    .data(uiState.workout?.routeImgUrl)
                     .crossfade(true)
                     .build(),
                 contentDescription = "Route image",
@@ -225,26 +232,21 @@ fun RoutePageScreen(
                     .aspectRatio(1.0F)
             )
             Text(
-                text = uiState.route?.name ?: "Route",
+                text = uiState.workout?.name ?: "Route",
                 style = MaterialTheme.typography.headlineMedium,
                 maxLines = 5,
                 modifier = Modifier.padding(start = 4.dp, top = 16.dp)
             )
-            Text(
-                text = uiState.route?.description ?: "Description",
-                style = MaterialTheme.typography.titleSmall,
-                maxLines = 10,
-                modifier = Modifier.padding(start = 4.dp, top = 8.dp)
-            )
             Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                RouteMetrics(uiState.route)
+                WorkoutMetrics(uiState.workout)
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "Elevation profile", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(16.dp))
             CartesianChartHost(
                 chart = rememberCartesianChart(
@@ -260,7 +262,7 @@ fun RoutePageScreen(
                         },
                     ),
                 ),
-                modelProducer = modelProducer,
+                modelProducer = modelElevationProducer,
                 modifier = Modifier.fillMaxWidth(),
                 marker = marker,
                 markerVisibilityListener = remember {
@@ -281,13 +283,61 @@ fun RoutePageScreen(
                 horizontalLayout = HorizontalLayout.fullWidth(),
             )
             Spacer(modifier = Modifier.height(32.dp))
-            Button(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
-                onEvent(RoutePageScreenEvent.ExportWorkoutToStrava)
-            }) {
-                Text(text = stringResource(R.string.start_a_workout_with_a_route))
+            Text(text = "Speed profile", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(16.dp))
+            CartesianChartHost(
+                chart = rememberCartesianChart(
+                    rememberLineCartesianLayer(),
+                    startAxis = rememberStartAxis(),
+                    bottomAxis = rememberBottomAxis(
+                        itemPlacer = remember {
+                            AxisItemPlacer.Horizontal.default(
+                                spacing = 5,
+                                shiftExtremeTicks = false,
+                                addExtremeLabelPadding = false,
+                            )
+                        },
+                    ),
+                ),
+                modelProducer = modelSpeedProducer,
+                modifier = Modifier.fillMaxWidth(),
+                marker = marker,
+                markerVisibilityListener = remember {
+                    object : CartesianMarkerVisibilityListener {
+                        override fun onHidden(marker: CartesianMarker) {
+                            onEvent(RoutePageScreenEvent.HideMapPoint)
+                        }
+
+                        override fun onShown(
+                            marker: CartesianMarker,
+                            targets: List<CartesianMarker.Target>,
+                        ) {
+                            onEvent(RoutePageScreenEvent.ShowMapPoint(targets.first().x.toDouble()))
+                        }
+                    }
+                },
+                runInitialAnimation = true,
+                horizontalLayout = HorizontalLayout.fullWidth(),
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            Button(modifier = Modifier.align(Alignment.CenterHorizontally),
+                shape = MaterialTheme.shapes.small,
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.strava)),
+                onClick = {
+                    onEvent(RoutePageScreenEvent.ExportWorkoutToStrava)
+                }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_strava),
+                    contentDescription = "Strava",
+                    tint = Color.Unspecified,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "Export to Strava")
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
-        if (isRouteDialogOpen) {
+
+        if (isWorkoutDialogOpen) {
             AlertDialog(
                 icon = {
                     Icon(Icons.Default.Map, contentDescription = "Export Route")
@@ -299,13 +349,13 @@ fun RoutePageScreen(
                     Text(text = "Choose route file format")
                 },
                 onDismissRequest = {
-                    isRouteDialogOpen = false
+                    isWorkoutDialogOpen = false
                 },
                 confirmButton = {
                     TextButton(
                         onClick = {
                             onEvent(RoutePageScreenEvent.ExportAsGpx)
-                            isRouteDialogOpen = false
+                            isWorkoutDialogOpen = false
                         }
                     ) {
                         Text("Export as GPX")
@@ -313,7 +363,7 @@ fun RoutePageScreen(
                     TextButton(
                         onClick = {
                             onEvent(RoutePageScreenEvent.ExportAsTcx)
-                            isRouteDialogOpen = false
+                            isWorkoutDialogOpen = false
                         }
                     ) {
                         Text("Export as TCX")
@@ -322,7 +372,7 @@ fun RoutePageScreen(
                 dismissButton = {
                     TextButton(
                         onClick = {
-                            isRouteDialogOpen = false
+                            isWorkoutDialogOpen = false
                         }
                     ) {
                         Text("Cancel")

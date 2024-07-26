@@ -1,6 +1,6 @@
-package com.graduate.work.sporterapp.domain.maps.routes
+package com.graduate.work.sporterapp.domain.maps.files
 
-import com.graduate.work.sporterapp.domain.firebase.storage.workout.entity.Workout
+import com.graduate.work.sporterapp.domain.firebase.storage.workouts.entity.Workout
 import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 
 abstract class ExportFileService {

@@ -1,9 +1,9 @@
-package com.graduate.work.sporterapp.domain.firebase.storage.workout.usecases
+package com.graduate.work.sporterapp.domain.firebase.storage.workouts.usecases
 
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.GetUserIdUseCase
-import com.graduate.work.sporterapp.domain.firebase.storage.workout.CloudStorageWorkoutRepository
-import com.graduate.work.sporterapp.domain.firebase.storage.workout.entity.Workout
+import com.graduate.work.sporterapp.domain.firebase.storage.workouts.CloudStorageWorkoutRepository
+import com.graduate.work.sporterapp.domain.firebase.storage.workouts.entity.Workout
 import com.graduate.work.sporterapp.domain.maps.mapbox.usecases.GetStaticMapUrlUseCase
 import javax.inject.Inject
 

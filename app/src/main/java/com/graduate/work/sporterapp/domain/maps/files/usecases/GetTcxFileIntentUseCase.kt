@@ -1,9 +1,10 @@
-package com.graduate.work.sporterapp.domain.maps.routes.usecases
+package com.graduate.work.sporterapp.domain.maps.files.usecases
 
 import android.content.Context
 import android.content.Intent
 import com.graduate.work.sporterapp.core.ext.createFileIntent
 import com.graduate.work.sporterapp.data.maps.files.TcxFileService
+import com.graduate.work.sporterapp.domain.firebase.storage.workouts.entity.Workout
 import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -17,6 +18,13 @@ class GetTcxFileIntentUseCase @Inject constructor(
         val isSaved = tcxFileService.saveRouteInInternalStorage(route)
         if (!isSaved) return null
         val fileName = route.name + ".tcx"
+        return createFileIntent(context, fileName, "application/tcx+xml")
+    }
+
+    suspend operator fun invoke(workout: Workout): Intent? {
+        val isSaved = tcxFileService.saveWorkoutInInternalStorage(workout)
+        if (!isSaved) return null
+        val fileName = workout.name + ".tcx"
         return createFileIntent(context, fileName, "application/tcx+xml")
     }
 }

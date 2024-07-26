@@ -7,7 +7,7 @@ import com.graduate.work.sporterapp.core.snackbar.LocalSnackbarController
 import com.graduate.work.sporterapp.core.snackbar.SnackbarController
 import com.graduate.work.sporterapp.features.home.screens.route_builder.screen.RouteBuilderScreen
 import com.graduate.work.sporterapp.features.home.screens.route_builder.screen.RouteBuilderScreenEvent
-import com.graduate.work.sporterapp.features.home.screens.route_builder.vm.RouteBuilderScreenViewModel
+import com.graduate.work.sporterapp.features.home.screens.map.vm.RouteBuilderScreenViewModel
 
 @Composable
 fun RouteBuilderCompleteScreen(

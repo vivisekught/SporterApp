@@ -1,7 +1,7 @@
 package com.graduate.work.sporterapp.domain.maps.mapbox.usecases
 
 import com.graduate.work.sporterapp.core.map.MapBoxStyle
-import com.graduate.work.sporterapp.domain.firebase.storage.workout.entity.Workout
+import com.graduate.work.sporterapp.domain.firebase.storage.workouts.entity.Workout
 import com.graduate.work.sporterapp.domain.maps.mapbox.MapboxApiRepository
 import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import com.mapbox.geojson.utils.PolylineUtils

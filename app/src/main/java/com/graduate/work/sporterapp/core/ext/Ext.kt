@@ -10,6 +10,7 @@ import android.graphics.Bitmap
 import android.location.Location
 import android.os.Build.VERSION.SDK_INT
 import android.os.Parcelable
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.mapbox.core.constants.Constants
@@ -22,8 +23,10 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -154,3 +157,11 @@ inline fun <reified T : Parcelable> Intent.parcelable(key: String): T? = when {
 }
 
 fun Float.convertMetersPerSecondToKilometersPerHour(): Float = this * 3.6f
+
+fun Long.convertTimestampToTime(): String {
+    val date = Date(this)
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+    dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+    val formattedDateTime = dateFormat.format(date)
+    return  formattedDateTime
+}

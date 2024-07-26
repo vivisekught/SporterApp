@@ -30,7 +30,6 @@ class UserLocationRepositoryImpl @Inject constructor(
             close()
             return@callbackFlow
         }
-
         val locationManager =
             context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
         val isGpsEnabled =
@@ -40,10 +39,8 @@ class UserLocationRepositoryImpl @Inject constructor(
         if (!isGpsEnabled && !isNetworkEnabled) {
             trySend(LocationServiceResult.Failure(LocationServiceResult.FailureReason.LOCATION_IS_DISABLED))
         }
-
         val locationService: LocationService = LocationServiceFactory.getOrCreate()
         var locationProvider: DeviceLocationProvider? = null
-
         val request = LocationProviderRequest.Builder()
             .interval(
                 IntervalSettings.Builder()

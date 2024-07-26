@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.domain.firebase.storage.workout.entity
+package com.graduate.work.sporterapp.domain.firebase.storage.workouts.entity
 
 data class Workout(
     val workoutId: String = "",
@@ -6,7 +6,7 @@ data class Workout(
     val name: String,
     val points: List<WorkoutRoutePoint>? = null,
     val distance: Double,
-    val duration: Double,
+    val durationInSeconds: Double,
     val avgSpeed: Double,
     val maxSpeed: Double,
     val climb: Double,

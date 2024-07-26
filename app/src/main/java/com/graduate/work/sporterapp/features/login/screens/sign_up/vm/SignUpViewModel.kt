@@ -85,6 +85,10 @@ class SignUpViewModel @Inject constructor(
                 is Response.Success -> {
                     uiState.copy(isLoading = false, shouldNavigateToHome = true)
                 }
+
+                Response.Loading -> {
+                    uiState.copy(isLoading = true)
+                }
             }
         }
     }
@@ -120,6 +124,10 @@ class SignUpViewModel @Inject constructor(
 
                 is Response.Success -> {
                     uiState.copy(isLoading = false, shouldNavigateToEmailVerification = true)
+                }
+
+                Response.Loading -> {
+                    uiState.copy(isLoading = true)
                 }
             }
         }

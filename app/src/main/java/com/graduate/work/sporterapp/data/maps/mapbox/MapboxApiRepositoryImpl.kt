@@ -30,25 +30,34 @@ class MapboxApiRepositoryImpl @Inject constructor(
 
     override suspend fun getRoute(coordinates: List<Point>): Response<Route?> {
         return suspendCoroutine { continuation ->
+            // Get retrofit client with custom parameters
             val client = MapboxDirections.builder()
+                // Mapbox access token
                 .accessToken(publicToken)
                 .routeOptions(
                     RouteOptions.builder()
+                        // Route response format
                         .geometries(DirectionsCriteria.GEOMETRY_POLYLINE)
+                        // User coordinates
                         .coordinates(coordinates.toDirectionsString())
+                        // Set cycling profile
                         .profile(DirectionsCriteria.PROFILE_CYCLING)
+                        // Get response in full overview
                         .overview(DirectionsCriteria.OVERVIEW_FULL)
                         .build()
                 ).build()
+            // Execute request
             client?.enqueueCall(object : retrofit2.Callback<DirectionsResponse> {
                 override fun onResponse(
                     call: Call<DirectionsResponse>,
                     response: retrofit2.Response<DirectionsResponse>,
                 ) {
+                    // Check response
                     if (response.body() == null || ((response.body()?.routes()?.size ?: 0) < 1)) {
                         continuation.resume(Failure("Response is empty"))
                         return
                     }
+                    // Get route
                     if (response.isSuccessful) {
                         val route = response.body()?.routes()?.get(0)
                         val distance = route?.distance() ?: 0.0
@@ -70,7 +79,7 @@ class MapboxApiRepositoryImpl @Inject constructor(
                     }
 
                 }
-
+                // on failure
                 override fun onFailure(call: Call<DirectionsResponse>, t: Throwable) {
                     continuation.resume(Failure(t.localizedMessage ?: "Unknown error"))
                 }

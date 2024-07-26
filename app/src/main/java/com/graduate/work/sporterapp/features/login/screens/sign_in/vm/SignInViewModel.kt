@@ -81,6 +81,10 @@ class SignInViewModel @Inject constructor(
                         uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
                     }
                 }
+
+                Response.Loading -> {
+
+                }
             }
         }
     }
@@ -98,6 +102,10 @@ class SignInViewModel @Inject constructor(
 
                 is Response.Success -> {
                     uiState.copy(isLoading = false, shouldNavigateToHomeScreen = true)
+                }
+
+                Response.Loading -> {
+                    uiState
                 }
             }
         }

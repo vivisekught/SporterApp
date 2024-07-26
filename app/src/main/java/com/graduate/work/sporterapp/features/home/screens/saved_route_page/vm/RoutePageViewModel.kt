@@ -1,7 +1,6 @@
 package com.graduate.work.sporterapp.features.home.screens.saved_route_page.vm
 
 import android.content.Intent
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,12 +8,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.graduate.work.sporterapp.R
 import com.graduate.work.sporterapp.core.ext.closestValue
+import com.graduate.work.sporterapp.core.graph.GraphProfile
 import com.graduate.work.sporterapp.core.snackbar.SnackbarMessage
 import com.graduate.work.sporterapp.core.snackbar.UserMessage
 import com.graduate.work.sporterapp.domain.firebase.storage.routes.usecases.GetRouteByIdUseCase
 import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
-import com.graduate.work.sporterapp.domain.maps.routes.usecases.GetGpxFileIntentUseCase
-import com.graduate.work.sporterapp.domain.maps.routes.usecases.GetTcxFileIntentUseCase
+import com.graduate.work.sporterapp.domain.maps.files.usecases.GetGpxFileIntentUseCase
+import com.graduate.work.sporterapp.domain.maps.files.usecases.GetTcxFileIntentUseCase
 import com.mapbox.geojson.Point
 import com.mapbox.turf.TurfMeasurement
 import dagger.assisted.Assisted
@@ -23,18 +23,12 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 
-
-data class ElevationProfile(
-    val x: List<Double>?,
-    val y: List<Double>?,
-)
-
 data class RoutePageState(
     val route: Route? = null,
     val isLoading: Boolean = false,
     val snackbarMessage: SnackbarMessage? = null,
     val routeFileIntent: Intent? = null,
-    val elevationProfile: ElevationProfile? = null,
+    val graphElevationProfile: GraphProfile? = null,
     val mapPoint: Point? = null,
 )
 
@@ -57,7 +51,7 @@ class RoutePageViewModel @AssistedInject constructor(
 
     }
 
-    fun exportWorkoutAsGpx() {
+    fun exportRouteAsGpx() {
         state.route?.let { route ->
             viewModelScope.launch {
                 val intent = getGpxFileIntentUseCase(route)
@@ -72,7 +66,7 @@ class RoutePageViewModel @AssistedInject constructor(
         }
     }
 
-    fun exportWorkoutAsTcx() {
+    fun exportRouteAsTcx() {
         state.route?.let { route ->
             viewModelScope.launch {
                 val intent = getTcxFileIntentUseCase(route)
@@ -95,7 +89,6 @@ class RoutePageViewModel @AssistedInject constructor(
     }
 
     private fun onGetRouteSuccess(route: Route) {
-        Log.d("AAAAAA", ": $route")
         val elevationsProfileY = route.points.map { it.altitude() }
         var distance = 0.0
         val elevationsProfileX = route.points.mapIndexed { index, point ->
@@ -107,13 +100,13 @@ class RoutePageViewModel @AssistedInject constructor(
         state = state.copy(
             isLoading = false,
             route = route,
-            elevationProfile = ElevationProfile(elevationsProfileX, elevationsProfileY),
+            graphElevationProfile = GraphProfile(elevationsProfileX, elevationsProfileY),
         )
     }
 
     fun showMapPoint(distance: Double) {
-        val closestValue = state.elevationProfile?.x?.closestValue(distance)
-        state.elevationProfile?.x?.indexOf(closestValue)?.let { index ->
+        val closestValue = state.graphElevationProfile?.x?.closestValue(distance)
+        state.graphElevationProfile?.x?.indexOf(closestValue)?.let { index ->
             if (index > 0) {
                 state = state.copy(mapPoint = state.route?.points?.get(index))
             }
@@ -127,6 +120,7 @@ class RoutePageViewModel @AssistedInject constructor(
     fun dismissSnackbar() {
         state = state.copy(snackbarMessage = null)
     }
+
 
     @AssistedFactory
     interface RoutePageViewModelFactory {

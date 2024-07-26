@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.graduate.work.sporterapp.core.ext.parseSeconds
 import com.graduate.work.sporterapp.core.ext.roundTo2
-import com.graduate.work.sporterapp.domain.firebase.storage.workout.entity.Workout
+import com.graduate.work.sporterapp.domain.firebase.storage.workouts.entity.Workout
 
 @Composable
 fun ColumnScope.WorkoutMetrics(workout: Workout?) {
@@ -61,7 +61,7 @@ fun ColumnScope.WorkoutMetrics(workout: Workout?) {
                 )
                 Spacer(modifier = Modifier.width(2.dp))
                 Text(
-                    it.duration.parseSeconds(),
+                    it.durationInSeconds.parseSeconds(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodySmall
                 )

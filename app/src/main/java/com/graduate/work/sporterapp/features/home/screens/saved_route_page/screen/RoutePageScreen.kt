@@ -92,11 +92,11 @@ fun RoutePageScreenCompleteScreen(
             }
 
             RoutePageScreenEvent.ExportAsGpx -> {
-                viewModel.exportWorkoutAsGpx()
+                viewModel.exportRouteAsGpx()
             }
 
             RoutePageScreenEvent.ExportAsTcx -> {
-                viewModel.exportWorkoutAsTcx()
+                viewModel.exportRouteAsTcx()
             }
 
             RoutePageScreenEvent.DismissSnackbar -> {
@@ -142,7 +142,7 @@ fun RoutePageScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = uiState.route?.name ?: "Route")
+                    Text(text = "Route")
                 },
                 navigationIcon = {
                     IconButton(onClick = { onEvent(RoutePageScreenEvent.Back) }) {
@@ -167,33 +167,33 @@ fun RoutePageScreen(
         val context = LocalContext.current
         val modelProducer = remember { CartesianChartModelProducer.build() }
         val marker = rememberMarker()
-        val mapViewportState = rememberMapViewportState {
-            setCameraOptions {
-                center(Point.fromLngLat(0.0, 0.0))
-                zoom(0.0)
-                pitch(0.0)
-            }
-            MapAnimationOptions.mapAnimationOptions {
-                duration(3000)
-            }
-        }
+//        val mapViewportState = rememberMapViewportState {
+//            setCameraOptions {
+//                center(Point.fromLngLat(0.0, 0.0))
+//                zoom(0.0)
+//                pitch(0.0)
+//            }
+//            MapAnimationOptions.mapAnimationOptions {
+//                duration(3000)
+//            }
+//        }
         LaunchedEffect(uiState.routeFileIntent) {
             if (uiState.routeFileIntent != null) {
                 context.startActivity(uiState.routeFileIntent)
             }
         }
-        LaunchedEffect(uiState.route) {
-            uiState.route?.points?.let { points ->
-                mapViewportState.transitionToGeometry(points, padding = 50.0)
-            }
-        }
-        LaunchedEffect(uiState.elevationProfile) {
-            if (uiState.elevationProfile?.x != null && uiState.elevationProfile.y != null) {
+//        LaunchedEffect(uiState.route) {
+//            uiState.route?.points?.let { points ->
+//                mapViewportState.transitionToGeometry(points, padding = 50.0)
+//            }
+//        }
+        LaunchedEffect(uiState.graphElevationProfile) {
+            if (uiState.graphElevationProfile?.x != null && uiState.graphElevationProfile.y != null) {
                 modelProducer.tryRunTransaction {
                     lineSeries {
                         series(
-                            x = uiState.elevationProfile.x,
-                            y = uiState.elevationProfile.y
+                            x = uiState.graphElevationProfile.x,
+                            y = uiState.graphElevationProfile.y
                         )
                     }
                 }

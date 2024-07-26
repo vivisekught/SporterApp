@@ -1,14 +1,20 @@
 package com.graduate.work.sporterapp.data.firebase.storage.route
 
-import android.util.Log
-import com.google.firebase.firestore.DocumentChange.Type.REMOVED
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.toObject
+import com.graduate.work.sporterapp.core.Response
+import com.graduate.work.sporterapp.core.SearchRouteParams
+import com.graduate.work.sporterapp.core.SearchWorkoutParams
+import com.graduate.work.sporterapp.core.SortDirection
 import com.graduate.work.sporterapp.data.firebase.storage.route.mapper.RouteMapper
 import com.graduate.work.sporterapp.data.firebase.storage.route.pojo.FirestoreRoutePojo
 import com.graduate.work.sporterapp.domain.firebase.storage.routes.CloudStorageRouteRepository
 import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 
 class CloudStorageRouteRepositoryImpl @Inject constructor(
@@ -17,32 +23,33 @@ class CloudStorageRouteRepositoryImpl @Inject constructor(
 
     private val routeMapper = RouteMapper()
 
-    private var listenerRegistration: ListenerRegistration? = null
-    override fun addListener(
+    override fun getRoutes(
         userId: String,
-        onDocumentEvent: (Boolean, Route) -> Unit,
-        onError: (Throwable) -> Unit,
-    ) {
-        val query = firestore.collection(ROUTES_COLLECTION).whereEqualTo("userId", userId)
-
-        listenerRegistration = query.addSnapshotListener { value, error ->
-            if (error != null) {
-                onError(error)
-                return@addSnapshotListener
-            }
-            value?.documentChanges?.forEach {
-                val wasDocumentDeleted = it.type == REMOVED
-                Log.d("AAAAAA", "data was deleted: $wasDocumentDeleted")
-                val firestoreRoutePojo =
-                    it.document.toObject<FirestoreRoutePojo>().copy(routeId = it.document.id)
-                val route = routeMapper.mapFirestorePojoToEntity(firestoreRoutePojo)
-                onDocumentEvent(wasDocumentDeleted, route)
-            }
+        searchRouteParams: SearchRouteParams
+    ): Flow<Response<List<Route>>> = callbackFlow {
+        var query = firestore
+            .collection(ROUTES_COLLECTION)
+            .whereEqualTo("userId", userId)
+            .orderBy(searchRouteParams.sortType.dbValue, if (searchRouteParams.sortDirection == SortDirection.ASC) Query.Direction.ASCENDING else Query.Direction.DESCENDING)
+        if (searchRouteParams.searchText.isNotEmpty()) {
+            query = query
+                .whereGreaterThanOrEqualTo("name", searchRouteParams.searchText)
+                .whereLessThanOrEqualTo("name", searchRouteParams.searchText + '\uf8ff')
         }
-    }
-
-    override fun removeListener() {
-        listenerRegistration?.remove()
+        val snapshotListener = query.addSnapshotListener { snapshot, e ->
+            val response = if (snapshot != null) {
+                val workouts = snapshot.toObjects(FirestoreRoutePojo::class.java).map {
+                    routeMapper.mapFirestorePojoToEntity(it)
+                }
+                Response.Success(workouts)
+            } else {
+                Response.Failure(e?.message ?: e.toString())
+            }
+            trySend(response).isSuccess
+        }
+        awaitClose {
+            snapshotListener.remove()
+        }
     }
 
     override fun getRoute(

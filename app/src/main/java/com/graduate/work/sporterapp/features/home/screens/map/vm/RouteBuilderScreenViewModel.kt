@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.features.home.screens.route_builder.vm
+package com.graduate.work.sporterapp.features.home.screens.map.vm
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +18,7 @@ import com.graduate.work.sporterapp.domain.firebase.storage.routes.usecases.Save
 import com.graduate.work.sporterapp.domain.maps.location.usecases.CollectUserLocationUseCase
 import com.graduate.work.sporterapp.domain.maps.mapbox.entity.MapPoint
 import com.graduate.work.sporterapp.domain.maps.mapbox.usecases.GetRouteFromCoordinatesUseCase
+import com.graduate.work.sporterapp.features.home.screens.route_builder.vm.RouteBuilderState
 import com.mapbox.geojson.Point
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -134,6 +135,10 @@ class RouteBuilderScreenViewModel @Inject constructor(
 
                     is Response.Success -> {
                         state.copy(route = response.data)
+                    }
+
+                    Response.Loading -> {
+                        state
                     }
                 }
             }

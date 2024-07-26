@@ -1,11 +1,17 @@
 package com.graduate.work.sporterapp.features.home.screens.saved_routes.vm
 
-import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.graduate.work.sporterapp.core.Response
+import com.graduate.work.sporterapp.core.SearchRouteParams
 import com.graduate.work.sporterapp.domain.firebase.auth.usecases.GetUserIdUseCase
 import com.graduate.work.sporterapp.domain.firebase.storage.routes.CloudStorageRouteRepository
 import com.graduate.work.sporterapp.domain.maps.mapbox.entity.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -14,28 +20,16 @@ class SavedRouteScreenViewModel @Inject constructor(
     private val cloudStorageRouteRepository: CloudStorageRouteRepository,
 ) : ViewModel() {
 
-    var routes = mutableStateMapOf<String, Route>()
+    var routes by mutableStateOf<Response<List<Route>>>(Response.Loading)
         private set
 
-    fun addListener() {
+    fun getRoutesList(searchRouteParams: SearchRouteParams) = viewModelScope.launch {
         val userId = getUserIdUseCase()
-        cloudStorageRouteRepository.addListener(
+        cloudStorageRouteRepository.getRoutes(
             userId.toString(),
-            onDocumentEvent = ::onDocumentEvent,
-            onError = {
-
-            })
-    }
-
-    private fun onDocumentEvent(wasDocumentDeleted: Boolean, route: Route) {
-        if (wasDocumentDeleted) {
-            routes.remove(route.routeId)
-        } else {
-            routes[route.routeId] = route
+            searchRouteParams,
+        ).collect { response ->
+            routes = response
         }
-    }
-
-    fun removeListener() {
-        cloudStorageRouteRepository.removeListener()
     }
 }

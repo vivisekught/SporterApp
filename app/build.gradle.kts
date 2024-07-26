@@ -34,9 +34,22 @@ android {
             "WEB_API_KEY",
             "\"${gradleProperties.getProperty("WEB_API_KEY")}\""
         )
+        buildConfigField(
+            "String",
+            "STRAVA_SECRET_CLIENT",
+            "\"${gradleProperties.getProperty("STRAVA_SECRET_CLIENT")}\""
+        )
 
         vectorDrawables {
             useSupportLibrary = true
+        }
+    }
+    signingConfigs {
+        create("release") {
+            keyAlias = "key0"
+            keyPassword = "com.graduate.work.sporterapp"
+            storeFile = file("/Users/nikitamaliy/AndroidStudioProjects/SporterApp/com.graduate.work.sporterapp.jks")
+            storePassword = "com.graduate.work.sporterapp"
         }
     }
 
@@ -47,6 +60,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -134,4 +148,6 @@ dependencies {
     // Charts
     implementation("com.patrykandpatrick.vico:compose:2.0.0-alpha.19")
     implementation("com.patrykandpatrick.vico:compose-m3:2.0.0-alpha.19")
+
+    implementation(libs.colorpicker.compose)
 }

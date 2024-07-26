@@ -52,6 +52,10 @@ class ForgetPasswordViewModel @Inject constructor(
                 is Response.Failure -> {
                     uiState.copy(isLoading = false, isEmailError = true)
                 }
+
+                Response.Loading -> {
+                    uiState
+                }
             }
         }
     }

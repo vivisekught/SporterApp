@@ -2,8 +2,8 @@ package com.graduate.work.sporterapp.data.firebase.storage.workout.mapper
 
 import com.graduate.work.sporterapp.data.firebase.storage.workout.pojo.WorkoutFirestorePojo
 import com.graduate.work.sporterapp.data.firebase.storage.workout.pojo.WorkoutFirestoreRoutePoint
-import com.graduate.work.sporterapp.domain.firebase.storage.workout.entity.Workout
-import com.graduate.work.sporterapp.domain.firebase.storage.workout.entity.WorkoutRoutePoint
+import com.graduate.work.sporterapp.domain.firebase.storage.workouts.entity.Workout
+import com.graduate.work.sporterapp.domain.firebase.storage.workouts.entity.WorkoutRoutePoint
 import com.mapbox.geojson.Point
 
 class WorkoutMapper {
@@ -22,7 +22,7 @@ class WorkoutMapper {
                 )
             },
             distance = pojo.distance,
-            duration = pojo.duration,
+            durationInSeconds = pojo.duration,
             climb = pojo.climb,
             descent = pojo.descent,
             routeImgUrl = pojo.routeImgUrl,
@@ -48,7 +48,7 @@ class WorkoutMapper {
             )
         },
         distance = workout.distance,
-        duration = workout.duration,
+        duration = workout.durationInSeconds,
         climb = workout.climb,
         descent = workout.descent,
         routeImgUrl = workout.routeImgUrl,

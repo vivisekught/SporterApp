@@ -1,4 +1,4 @@
-package com.graduate.work.sporterapp.domain.firebase.storage.workout.entity
+package com.graduate.work.sporterapp.domain.firebase.storage.workouts.entity
 
 import com.mapbox.geojson.Point
 
